@@ -5,7 +5,8 @@ Accept: application/json
 
 ###
 
-GET {{MainEvent_HostAddress}}/todos/1
+GET {{MainEvent_HostAddress}}/board
 Accept: application/json
+Authorization: Bearer 123
 
 ###

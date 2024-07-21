@@ -4,6 +4,12 @@
 #     build:
 #       context: .
 #       dockerfile: MainEventBackend/Dockerfile
+
+volumes:
+  broker:
+  
+
+
 services:
   zookeeper:
     image: confluentinc/cp-zookeeper:7.4.0

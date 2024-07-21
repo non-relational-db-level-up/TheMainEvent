@@ -1,49 +1,30 @@
 using System.Text.Json.Serialization;
-using Confluent.Kafka;
+using MainEvent;
 using MainEvent.Api;
-using MainEvent.helpers;
-using MainEvent.Helpers.Cognito;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 var builder = WebApplication.CreateSlimBuilder(args);
+var corsOrigins = builder.Configuration.GetSection("cors").Get<string[]>() ?? [];
+const string allowSpecificOriginsPolicy = "allow_specific_origins_policy";
+
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("OurCors", corsBuilder =>
-    {
-        corsBuilder.WithOrigins(["http://localhost:4200", "https://"])
-            .WithHeaders(["Content-Type", "Authorization"])
-            .WithMethods([HttpMethods.Get, HttpMethods.Post, HttpMethods.Delete, HttpMethods.Options]).Build();
-    });
+    options.AddPolicy(name: allowSpecificOriginsPolicy,
+        policy => policy.WithOrigins(corsOrigins)
+            .WithHeaders("Content-Type", "Authorization")
+            .WithMethods("GET", "POST", "DELETE", "OPTIONS")
+            .AllowCredentials()
+    );
 });
-
 builder.Services.AddAuthorization();
-/*
- // TODO auth ->
- builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-    .AddJwtBearer(options =>
-    {
-        options.TokenValidationParameters = new TokenValidationParameters
-        {
-            IssuerSigningKeyResolver = (s, securityToken, identifier, parameters) =>
-            {
-                var json = new HttpClient().GetStringAsync(parameters.ValidIssuer + "/.well-known/jwks.json").Result;
-                var keys = JsonSerializer.Deserialize<JsonWebKeySet>(json)?.Keys;
-                return keys!;
-            },
-
-            ValidIssuer = "https://cognito-idp.eu-west-1.amazonaws.com/eu-west-1_28ckopm51",
-            ValidateIssuerSigningKey = true,
-            ValidateIssuer = true,
-            ValidateLifetime = true,
-            ValidAudience = "7g2q9pb8e9ro0bb1hpp8vc0i4n",
-            ValidateAudience = false
-        };
-    });*/
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer();
+builder.Services.ConfigureOptions<JwtBearerConfigureOptions>();
 
 builder.Services.ConfigureHttpJsonOptions(options =>
     options.SerializerOptions.TypeInfoResolverChain.Insert(0, AppJsonSerializerContext.Default));
 
 
-var producerConfig = new ProducerConfig { BootstrapServers = "localhost:29092" };
+/*var producerConfig = new ProducerConfig { BootstrapServers = "localhost:29092" };
 builder.Services.AddSingleton<IProducer<Null, TestData>>(_ =>
     new ProducerBuilder<Null, TestData>(producerConfig).SetValueSerializer(new JsonSerializable<TestData>()).Build());
 
@@ -55,11 +36,11 @@ var consumerConfig = new ConsumerConfig
 };
 var consumer = new ConsumerBuilder<Null, TestData>(consumerConfig)
     .SetValueDeserializer(new JsonSerializable<TestData>())
-    .Build();
-consumer.Subscribe("messages");
+    .Build();*/
+// consumer.Subscribe("messages");
 
 //TODO this feels like it could be better 
-Task.Run(() =>
+/*Task.Run(() =>
     {
         try
         {
@@ -78,23 +59,20 @@ Task.Run(() =>
             consumer.Close();
         }
     }
-);
+);*/
 
 var app = builder.Build();
+// Thanks EBS
+app.MapGet("/", () => "Health is ok!").AllowAnonymous();
 
 
-var todosApi = app.MapGroup("/messages");
-todosApi.MapPost("/", () => { });
-todosApi.MapGet("/all", () => { });
-
-app.UseCors("OurCors");
+app.UseRouting();
+app.UseCors();
 app.UseAuthorization();
 app.UseAuthentication();
-app.UseMiddleware<CognitoMiddleware>();
-app.MapGet("/", () => "Health is ok!").AllowAnonymous();
-var group = app.MapGroup("/");
-Endpoints.ResisterEndpoints(group);
 
+var group = app.MapGroup("/board").RequireCors(allowSpecificOriginsPolicy).RequireAuthorization();
+Endpoints.ResisterEndpoints(group);
 app.Run();
 
 

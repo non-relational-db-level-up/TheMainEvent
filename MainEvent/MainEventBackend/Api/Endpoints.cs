@@ -1,5 +1,5 @@
-﻿using Confluent.Kafka;
-using MainEvent.Helpers.Cognito;
+﻿using System.Security.Claims;
+using Confluent.Kafka;
 using Microsoft.AspNetCore.Http.HttpResults;
 
 namespace MainEvent.Api;
@@ -8,27 +8,33 @@ public static class Endpoints
 {
     public static void ResisterEndpoints(IEndpointRouteBuilder app)
     {
-        var group = app.MapGroup("/board");
-        group.MapGet("/", GetAllBlocks);
-        group.MapPost("/", AddBlock);
+        app.MapGet("/", GetAllBlocks);
+        app.MapPost("/", AddBlock);
     }
 
-    private static Task GetAllBlocks(
-        ILogger<Program> logger,
-        ICognitoService cognito)
+    private static async Task<string> GetAllBlocks(
+        ILogger<Program> logger)
     {
-        // TODO: use sql like thingy to make call to the latest board state 
-        throw new NotImplementedException();
+        return "Cool stuff";
+    }
+
+    private static async Task<JsonHttpResult<IEnumerable<string>>> GetAllBlocks1(
+        ILogger<Program> logger,
+        ClaimsPrincipal claims)
+    {
+        var uuid = claims.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        // TODO: use sql like thingy to make call to the latest board state
+        return TypedResults.Json(claims.Claims.Select(claim => $"V - {claim.Value}\t\tT - {claim.Type}"));
     }
 
     private static async Task AddBlock(
         ILogger<Program> logger,
-        IProducer<Null, TestData> producer,
-        ICognitoService cognito
+        IProducer<Null, TestData> producer
     )
     {
         // Do timer check 
         // TODO: some sort of abstraction for this.
+        // TODO: Port this to lambda
         var result = await producer.ProduceAsync("messages", new Message<Null, TestData>
         {
             Value = new TestData(2, 1, 10, 20, 30)

@@ -8,6 +8,7 @@
 <!--        <PublishAot>true</PublishAot>-->
         <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
         <RootNamespace>MainEvent</RootNamespace>
+        <UserSecretsId>0aea82f2-fbf9-432e-8ee0-e6fd3e372d32</UserSecretsId>
     </PropertyGroup>
 
     <ItemGroup>
