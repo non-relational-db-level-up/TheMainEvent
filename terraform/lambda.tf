@@ -37,28 +37,28 @@ resource "aws_iam_role_policy_attachment" "lambda_access_attachment" {
 
 ## Planning on just creating the Lambda in the console with node
 
-data "archive_file" "lambda" {
-  type        = "zip"
-  source_dir  = local.dist_dir
-  output_path = "node_lambda_bundle.zip"
-}
+# data "archive_file" "lambda" {
+#   type        = "zip"
+#   source_dir  = local.dist_dir
+#   output_path = "node_lambda_bundle.zip"
+# }
 
-resource "aws_lambda_function" "lambda" {
-  for_each      = local.lambda_list
-  function_name = each.key
-  timeout       = 60
-  memory_size = 256
-  filename    = "node_lambda_bundle.zip"
-  handler     = "${each.value.handler}"
+# resource "aws_lambda_function" "lambda" {
+#   for_each      = local.lambda_list
+#   function_name = each.key
+#   timeout       = 60
+#   memory_size = 256
+#   filename    = "node_lambda_bundle.zip"
+#   handler     = "${each.value.handler}"
 
-  role             = aws_iam_role.lambda_execution_role.arn
-  source_code_hash = data.archive_file.lambda.output_base64sha256
-  runtime          = "nodejs18.x"
+#   role             = aws_iam_role.lambda_execution_role.arn
+#   source_code_hash = data.archive_file.lambda.output_base64sha256
+#   runtime          = "nodejs18.x"
 
-  environment {
-    variables = {
-      TOPIC = "grid-updates" # TODO: Replace this with dynamic topic
-      BROKER = "${aws_instance.kafka.public_ip}:9092"
-    }
-  }
-}
+#   environment {
+#     variables = {
+#       TOPIC = "grid-updates" # TODO: Replace this with dynamic topic
+#       BROKER = "${aws_instance.kafka.public_ip}:9092"
+#     }
+#   }
+# }
