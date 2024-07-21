@@ -7,8 +7,8 @@ EXPOSE 8081
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
-COPY ["MainEvent/MainEventBackend/MainEventBackend.csproj", "MainEventBackend/"]
-RUN dotnet restore "MainEventBackend/MainEventBackend.csproj"
+COPY ["./MainEventBackend.csproj", "MainEventBackend/"]
+RUN dotnet restore "MainEventBackend.csproj"
 COPY . .
 WORKDIR "/src/MainEventBackend"
 RUN dotnet build "MainEventBackend.csproj" -c $BUILD_CONFIGURATION -o /app/build
