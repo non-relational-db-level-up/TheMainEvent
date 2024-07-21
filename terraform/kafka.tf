@@ -14,6 +14,11 @@ resource "aws_iam_role_policy_attachment" "kafka" {
   role       = aws_iam_role.kafka.name
 }
 
+resource "aws_iam_role_policy_attachment" "kafka_ssm" {
+  policy_arn = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
+  role       = aws_iam_role.kafka.name
+}
+
 ## Security group
 resource "aws_security_group" "kafka" {
   name        = "${var.naming_prefix}-kafka-sg"
