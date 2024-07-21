@@ -1,0 +1,1 @@
+# Script to pull and run the docker container for Kafka here (remember to attach volume for data persistence)
