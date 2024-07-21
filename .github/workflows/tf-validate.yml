@@ -1,4 +1,4 @@
-name: Terraform Format and Validate (Backend)
+name: Terraform Format and Validate
 
 on:
   pull_request:

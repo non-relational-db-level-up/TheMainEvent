@@ -5,7 +5,8 @@ on:
     branches:
       - main
     paths:
-      - 'app/**'
+      - 'frontend/**'
+  workflow_dispatch:
 
 permissions:
   id-token: write
@@ -22,12 +23,12 @@ jobs:
         uses: aws-actions/configure-aws-credentials@v2
         with:
           role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
-          role-session-name: github-dev-do-list-build
+          role-session-name: github-build
           aws-region: eu-west-1
 
       - name: Deploy to AWS S3
         run: aws s3 sync . s3://${{ secrets.FRONTEND_BUCKET_NAME }} --delete
-        working-directory: app
+        working-directory: frontend
 
       # - name: Invalidate CloudFront cache
       #   run: aws cloudfront create-invalidation --distribution-id ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }} --paths "/*"
