@@ -7,17 +7,17 @@ EXPOSE 8081
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
-COPY ["MainEvent/MainEvent.csproj", "MainEvent/"]
-RUN dotnet restore "MainEvent/MainEvent.csproj"
+COPY ["MainEventBackend/MainEventBackend.csproj", "MainEvent/"]
+RUN dotnet restore "MainEventBackend/MainEventBackend.csproj"
 COPY . .
-WORKDIR "/src/MainEvent"
-RUN dotnet build "MainEvent.csproj" -c $BUILD_CONFIGURATION -o /app/build
+WORKDIR "/src/MainEventBackend"
+RUN dotnet build "MainEventBackend.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
 FROM build AS publish
 ARG BUILD_CONFIGURATION=Release
-RUN dotnet publish "MainEvent.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
+RUN dotnet publish "MainEventBackend.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
 
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
-ENTRYPOINT ["dotnet", "MainEvent.dll"]
+ENTRYPOINT ["dotnet", "MainEventBackend.dll"]

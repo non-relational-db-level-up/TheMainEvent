@@ -3,4 +3,4 @@
     image: mainevent
     build:
       context: .
-      dockerfile: MainEvent/Dockerfile
+      dockerfile: MainEventBackend/Dockerfile
