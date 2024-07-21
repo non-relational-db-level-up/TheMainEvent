@@ -1,0 +1,6 @@
+﻿services:
+  mainevent:
+    image: mainevent
+    build:
+      context: .
+      dockerfile: MainEvent/Dockerfile
