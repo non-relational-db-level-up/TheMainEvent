@@ -1,0 +1,64 @@
+name: Deploy New App Version (Backend)
+
+on:
+  push:
+    branches:
+    - main
+    paths:
+    - 'backend/**'
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          role-session-name: github-dev-do-list-build
+          aws-region: eu-west-1
+
+      - name: Setup dotnet cli
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.x
+
+      - name: Dotnet publish
+        run: |
+          dotnet restore;
+          dotnet publish -r linux-x64 --configuration "Release" --self-contained "true";
+        working-directory: backend
+
+      - name: Package artifact
+        run: zip -r ../site.zip *
+        working-directory: backend/bin/Release/net8.0/linux-x64/publish
+
+      - name: Upload artifact to S3
+        run: aws s3 cp site.zip s3://${{ secrets.BACKEND_BUCKET_NAME }}/application-${{ github.run_id }}.zip
+        working-directory: backend/bin/Release/net8.0/linux-x64
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+
+    steps:
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          role-session-name: github-dev-do-list-build
+          aws-region: eu-west-1
+
+      - name: Deploy to Elastic Beanstalk
+        run: |
+          aws elasticbeanstalk create-application-version --application-name ${{ secrets.BACKEND_APP_NAME }} --version-label ${{ github.run_id }} --source-bundle S3Bucket="${{ secrets.BACKEND_BUCKET_NAME }}",S3Key="application-${{ github.run_id }}.zip"
+          aws elasticbeanstalk update-environment --application-name ${{ secrets.BACKEND_APP_NAME }} --environment-name ${{ secrets.BACKEND_ENV_NAME }} --version-label ${{ github.run_id }}
