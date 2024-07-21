@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3x3 Matrix Color Picker</title>
+    <style>
+        .matrix {
+            display: grid;
+            grid-template-columns: repeat(3, 100px);
+            grid-template-rows: repeat(3, 100px);
+            gap: 5px;
+        }
+
+        .cell {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid #000;
+            font-size: 20px;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .color-picker {
+            display: none;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 10;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="matrix">
+        <div class="cell" data-row="0" data-col="0">0,0</div>
+        <div class="cell" data-row="0" data-col="1">0,1</div>
+        <div class="cell" data-row="0" data-col="2">0,2</div>
+        <div class="cell" data-row="1" data-col="0">1,0</div>
+        <div class="cell" data-row="1" data-col="1">1,1</div>
+        <div class="cell" data-row="1" data-col="2">1,2</div>
+        <div class="cell" data-row="2" data-col="0">2,0</div>
+        <div class="cell" data-row="2" data-col="1">2,1</div>
+        <div class="cell" data-row="2" data-col="2">2,2</div>
+    </div>
+
+    <input type="color" id="color-picker" class="color-picker">
+
+    <script>
+        // Create a new WebSocket instance and connect to the server
+        const socket = new WebSocket('ws://localhost:8000');
+
+        // Event listener for when the connection is open
+        socket.addEventListener('open', (event) => {
+            console.log('WebSocket connection established.');
+        });
+
+        socket.onmessage = function(event) {
+            const message = event.data;
+            console.log(message)
+        };
+
+        // Event listener for when a message is received from the server
+        socket.addEventListener('message', (event) => {
+            try {
+                // Parse the JSON data
+                const data = JSON.parse(event.data);
+                console.log('Received event: ${data}')
+                // // Extract row, column, and colour from the parsed data
+                // const row = data.row;
+                // const col = data.col;
+                // const colour = data.colour; // Expected to be an array, e.g., [0, 255, 255]
+
+                // // Process the received data
+                // console.log(`Received update - Row: ${row}, Column: ${col}, Colour: RGB(${colour.join(', ')})`);
+
+                // You can add your own logic to handle the data here
+                // For example, updating a table or a grid with the new colour
+                const row = data.row;
+            const col = data.col;
+            const colour = data.colour;
+
+            // Find the corresponding cell
+            const cell = document.querySelector(`.cell[data-row='${row}'][data-col='${col}']`);
+            if (cell) {
+                // Change the cell's background color
+                cell.style.backgroundColor = `rgb(${colour[0]}, ${colour[1]}, ${colour[2]})`;
+            }
+
+
+
+            } catch (error) {
+                console.error('Error parsing JSON data:', error);
+            }
+        });
+
+        // Event listener for when there's an error with the WebSocket connection
+        socket.addEventListener('error', (event) => {
+            console.error('WebSocket error observed:', event);
+        });
+
+        // Event listener for when the WebSocket connection is closed
+        socket.addEventListener('close', (event) => {
+            console.log('WebSocket connection closed.');
+        });
+
+        const colorPicker = document.getElementById('color-picker');
+        let currentCell = null;
+
+        document.querySelectorAll('.cell').forEach(cell => {
+            cell.addEventListener('click', () => {
+                currentCell = cell;
+                colorPicker.click();
+            });
+        });
+
+        colorPicker.addEventListener('input', (event) => {
+            if (currentCell) {
+                const row = currentCell.getAttribute('data-row');
+                const col = currentCell.getAttribute('data-col');
+                const color = event.target.value;
+                currentCell.style.backgroundColor = color;
+                console.log(`Row: ${row}, Col: ${col}, Color: ${color}`);
+                currentCell = null;
+            }
+        });
+    </script>
+</body>
+
+</html>
