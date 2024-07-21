@@ -69,3 +69,8 @@ variable "lambda_endpoint_config" {
 
   default = {}
 }
+
+variable "cors_allowed_origins" {
+  type        = list(string)
+  description = "The allowed origins for CORS."
+}

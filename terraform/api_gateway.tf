@@ -23,6 +23,14 @@ resource "aws_apigatewayv2_api" "api" {
   name          = "${var.naming_prefix}-service-api"
   description   = "API Gateway for passing events into Kafka"
   protocol_type = "HTTP"
+
+  cors_configuration {
+    allow_credentials = true
+    allow_headers     = ["Content-Type", "Authorization"]
+    allow_methods     = ["GET", "POST", "PUT", "DELETE", "OPTIONS"]
+    allow_origins     = var.cors_allowed_origins
+    max_age           = 3000
+  }
 }
 
 resource "aws_apigatewayv2_domain_name" "api" {
@@ -32,6 +40,19 @@ resource "aws_apigatewayv2_domain_name" "api" {
     certificate_arn = "arn:aws:acm:eu-west-1:229582503298:certificate/799f4407-450d-4558-b9d9-41d655150259"
     endpoint_type   = "REGIONAL"
     security_policy = "TLS_1_2"
+  }
+}
+
+resource "aws_apigatewayv2_authorizer" "cognito_jwt_authorizer" {
+  name            = "CognitoJWTAuthorizer"
+  api_id          = aws_apigatewayv2_api.api.id
+  authorizer_type = "JWT"
+
+  identity_sources = ["$request.header.Authorization"]
+
+  jwt_configuration {
+    audience = [aws_cognito_user_pool_client.client.id]
+    issuer   = "https://cognito-idp.${var.region}.amazonaws.com/${aws_cognito_user_pool.user_pool.id}"
   }
 }
 

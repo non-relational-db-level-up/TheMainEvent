@@ -5,7 +5,7 @@ resource "aws_iam_instance_profile" "server" {
 }
 
 resource "aws_iam_role" "server" {
-  name               = "${var.naming_prefix}-ec2-role"
+  name               = "${var.naming_prefix}-server-role"
   assume_role_policy = data.aws_iam_policy_document.ec2.json
 }
 
@@ -37,19 +37,19 @@ resource "aws_security_group" "server" {
 }
 
 resource "aws_vpc_security_group_ingress_rule" "server" {
-  security_group_id            = aws_security_group.server.id
-  from_port                    = 80
-  to_port                      = 80
-  ip_protocol                  = "tcp"
-  cidr_ipv4                    = "0.0.0.0/0"
+  security_group_id = aws_security_group.server.id
+  from_port         = 80
+  to_port           = 80
+  ip_protocol       = "tcp"
+  cidr_ipv4         = "0.0.0.0/0"
 }
 
 resource "aws_vpc_security_group_egress_rule" "server" {
-  security_group_id            = aws_security_group.server.id
-  from_port                    = 443
-  to_port                      = 443
-  ip_protocol                  = "tcp"
-  cidr_ipv4                    = "0.0.0.0/0"
+  security_group_id = aws_security_group.server.id
+  from_port         = 443
+  to_port           = 443
+  ip_protocol       = "tcp"
+  cidr_ipv4         = "0.0.0.0/0"
 }
 
 ## Elastic Beanstalk
