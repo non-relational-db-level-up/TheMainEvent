@@ -5,16 +5,18 @@ const rows = 30;
 const cols = 50;
 const cooldownIntervalSeconds = 30;
 
-drawGrid(rows, cols);
 
 // Elements
+let root = document.documentElement;
 let colourPicker = document.getElementById('colour-input');
 let mainTimer = document.getElementById('time-left');
 let cooldownTimer = document.getElementById('cooldown-timer');
 let cooldownTimerContainer = document.getElementById('cooldown-timer-container');
+let grid = document.getElementById('grid');
 
 const userEmail = await getEmail();
 let inputAllowed = true;
+let roundOver = false;
 
 // Fetch from the server
 const topic = "Cat";
@@ -30,6 +32,8 @@ mainTimer.innerText = parseSecondsToTimeLeft(countdownSecondsRemaining);
 const timerInterval = setInterval(countdown, 1000);
 let cooldownInterval;
 
+drawGrid(rows, cols);
+
 document.getElementById('logout-button').addEventListener('click', logout);
 document.getElementById('welcome').innerText = `Welcome, ${userEmail}`;
 colourPicker.addEventListener('input', function() {
@@ -41,8 +45,6 @@ document.getElementById('topic').innerText = topic;
 document.documentElement.style.setProperty('--selected-color', colourPicker.value);
 
 function drawGrid(rows, cols) {
-  let root = document.documentElement;
-  let grid = document.getElementById('grid');
   let blockSize = 0.6 * (screen.width / cols);
   root.style.setProperty('--block-size', `${blockSize}px`);
 
@@ -67,6 +69,8 @@ function blockClickHandler(event) {
   let block = event.target;
   block.style.backgroundColor = colourPicker.value;
   inputAllowed = false;
+  grid.classList.add('disabled');
+
   cooldownSecondsRemaining = cooldownIntervalSeconds;
   cooldownTimer.innerText = cooldownSecondsRemaining;
   cooldownTimerContainer.style.display = 'flex';
@@ -78,6 +82,7 @@ function cooldown() {
     cooldownTimer.innerText = '';
     clearInterval(cooldownInterval);
     inputAllowed = true;
+    grid.classList.remove('disabled');
     cooldownTimerContainer.style.display = 'none';
     return;
   }
