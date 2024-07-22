@@ -4,10 +4,35 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>The Main Event</title>
+    <link rel="stylesheet" href="styles/index.css">
 </head>
 <body>
-    <h1 id="welcome"></h1>
-    <button id="logout-button">Logout</button>
+    <section id="index-container">
+        <section id="grid-container">
+            <section id="grid"></section>
+        </section>
+        <section id="sidebar">
+            <section>
+                <h1 id="welcome"></h1>
+            </section>
+            <section>
+                <h2>Draw the following:</h2>
+                <h3 id="topic"></h3>
+            </section>
+            <section>
+                <h2>Colour Picker</h2>
+                <input type="color" id="colour-input">
+            </section>
+            <section>
+                <h2>Time Left</h2>
+                <h3 id="time-left"></h3>
+            </section>
+            <section>
+                <button id="playback-button" class="disabled">Playback</button>
+                <button id="logout-button">Logout</button>
+            </section>
+        </section>
+    </section>
 
     <script type="module" src="scripts/index.js"></script>
     <script type="module" src="scripts/validateAuth.js"></script>
