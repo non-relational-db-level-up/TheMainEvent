@@ -101,11 +101,43 @@ button:hover {
   color: grey;
 }
 
-#colour-input {
+.overlay-container {
+  position: relative;
   width: 10rem;
   height: 10rem;
   margin: 1rem 0 0 0;
+}
+
+#colour-input {
+  position: absolute;
+  width: 10rem;
+  height: 10rem;
   cursor: pointer;
+  top: 0;
+  left: 0;
+}
+
+#cooldown-timer-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: absolute;
+  width: 10rem;
+  height: 10rem;
+  top: 0;
+  left: 0;
+  z-index: 5;
+  background-color: rgb(128, 128, 128, 0.5);
+  cursor: not-allowed;
+}
+
+#cooldown-timer {
+  font-size: 2rem;
+  font-weight: 700;
+  color: black;
+  z-index: 10;
+  top: 0;
+  left: 0;
 }
 
 #time-left{

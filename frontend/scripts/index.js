@@ -1,23 +1,34 @@
 import {getEmail, logout} from './authManager.js';
 
+// Constants
 const rows = 30;
 const cols = 50;
+const cooldownIntervalSeconds = 30;
+
+drawGrid(rows, cols);
 
 // Elements
 let colourPicker = document.getElementById('colour-input');
-let timer = document.getElementById('time-left');
+let mainTimer = document.getElementById('time-left');
+let cooldownTimer = document.getElementById('cooldown-timer');
+let cooldownTimerContainer = document.getElementById('cooldown-timer-container');
 
 const userEmail = await getEmail();
 let inputAllowed = true;
 
 // Fetch from the server
 const topic = "Cat";
-let minutes = 5;
-let seconds = 0;
+let countdownSecondsRemaining = 300;
+let cooldownSecondsRemaining = 0;
+
+if (cooldownSecondsRemaining === 0) {
+  cooldownTimerContainer.style.display = 'none';
+}
 
 // Start the countdown loop
-timer.innerText = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+mainTimer.innerText = parseSecondsToTimeLeft(countdownSecondsRemaining);
 const timerInterval = setInterval(countdown, 1000);
+let cooldownInterval;
 
 document.getElementById('logout-button').addEventListener('click', logout);
 document.getElementById('welcome').innerText = `Welcome, ${userEmail}`;
@@ -28,8 +39,6 @@ colourPicker.addEventListener('input', function() {
 document.getElementById('topic').innerText = topic;
 
 document.documentElement.style.setProperty('--selected-color', colourPicker.value);
-
-drawGrid(rows, cols);
 
 function drawGrid(rows, cols) {
   let root = document.documentElement;
@@ -58,24 +67,37 @@ function blockClickHandler(event) {
   let block = event.target;
   block.style.backgroundColor = colourPicker.value;
   inputAllowed = false;
+  cooldownSecondsRemaining = cooldownIntervalSeconds;
+  cooldownTimer.innerText = cooldownSecondsRemaining;
+  cooldownTimerContainer.style.display = 'flex';
+  cooldownInterval = setInterval(cooldown, 1000);
+}
 
-  setTimeout(() => {
+function cooldown() {
+  if (cooldownSecondsRemaining === 0) {
+    cooldownTimer.innerText = '';
+    clearInterval(cooldownInterval);
     inputAllowed = true;
-  }, 30000);
+    cooldownTimerContainer.style.display = 'none';
+    return;
+  }
+  cooldownSecondsRemaining--;
+  cooldownTimer.innerText = cooldownSecondsRemaining;
 }
 
 function countdown() {
-  if (seconds === 0) {
-    if (minutes === 0) {
-      alert('Time is up!');
-      clearInterval(timerInterval);
-      inputAllowed = false;
-
-      return;
-    }
-    minutes--;
-    seconds = 60;
+  if (countdownSecondsRemaining === 0) {
+    alert('Time is up!');
+    clearInterval(timerInterval);
+    inputAllowed = false;
+    return;
   }
-  seconds--;
-  timer.innerText = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+  countdownSecondsRemaining--;
+  mainTimer.innerText = parseSecondsToTimeLeft(countdownSecondsRemaining);
+}
+
+function parseSecondsToTimeLeft(seconds) {
+  let minutes = Math.floor(seconds / 60);
+  let remainingSeconds = seconds % 60;
+  return `${minutes < 10 ? '0' : ''}${minutes}:${remainingSeconds < 10 ? '0' : ''}${remainingSeconds}`;
 }
