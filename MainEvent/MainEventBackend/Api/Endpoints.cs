@@ -1,5 +1,8 @@
-﻿using System.Security.Claims;
+﻿using System.Reactive.Linq;
+using System.Security.Claims;
 using Confluent.Kafka;
+using ksqlDB.RestApi.Client.KSql.Linq;
+using ksqlDB.RestApi.Client.KSql.Query.Context;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.HttpResults;
 
@@ -23,12 +26,19 @@ public static class Endpoints
     [Authorize]
     private static async Task<JsonHttpResult<IEnumerable<string>>> GetAllBlocks1(
         ILogger<Program> logger,
+        IKSqlDBContext context,
         ClaimsPrincipal claims)
     {
-        var uuid = claims.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-
-
         // TODO: use sql like thingy to make call to the latest board state
+
+        // var observable = context.CreatePushQuery<TestData>().ToObservable();
+        var observable = context.CreatePushQuery<TestData>()
+            .Take(2)
+            .ToObservable()
+            .Select(data => data)
+            .ToList();
+
+        Console.WriteLine(observable);
         return TypedResults.Json(claims.Claims.Select(claim => $"V - {claim.Value}\t\tT - {claim.Type}"));
     }
 
