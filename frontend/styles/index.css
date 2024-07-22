@@ -1,6 +1,56 @@
 :root {
   --block-size: 5px;
-  --selected-color: white;
+  --selected-color: black;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  text-align: center;
+}
+
+body {
+  font-family: 'Roboto', sans-serif;
+  background-color: whitesmoke;
+}
+
+button {
+  padding: 1rem 2rem;
+  border-radius: 10rem;
+  border: none;
+  color: black;
+  cursor: pointer;
+  background-color: whitesmoke;
+}
+
+button:hover {
+  background-color: lightgray;
+}
+
+.disabled {
+  color: grey;
+  cursor: not-allowed;
+}
+
+.disabled:hover {
+  background-color: whitesmoke;
+}
+
+#index-container {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  min-width: 100vw;
+}
+
+#grid-container {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  padding: 1rem;
 }
 
 #grid {
@@ -10,16 +60,12 @@
   justify-content: center;
   flex-wrap: nowrap;
   gap: 0;
-  margin: 0;
-  padding: 0;
 }
 
 .row {
   display: inline-flex;
   height: var(--block-size);
   width: var(--grid-width);
-  margin: 0;
-  padding: 0;
 }
 
 .block {
@@ -28,10 +74,42 @@
   display: inline-block;
   border: 1px solid black;
   background-color: white;
-  margin: 0;
   flex: none;
 }
 
 .block:hover {
-  background-color: var(--selected-color);
+  background-color: var(--selected-color) !important;
+}
+
+#sidebar {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-left: auto;
+  gap: 1.5rem;
+  min-width: 20%;
+  padding: 0 1rem;
+  background-color: white;
+  height: 100%;
+}
+
+#topic {
+  font-size: 5rem;
+  font-weight: 900;
+  color: grey;
+}
+
+#colour-input {
+  width: 10rem;
+  height: 10rem;
+  margin: 1rem 0 0 0;
+  cursor: pointer;
+}
+
+#time-left{
+  font-size: 4rem;
+  font-weight: 700;
+  color: red;
 }

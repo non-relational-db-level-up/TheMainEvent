@@ -1,18 +1,40 @@
 import {getEmail, logout} from './authManager.js';
 
-document.getElementById('logout-button').addEventListener('click', logout);
+const rows = 30;
+const cols = 50;
+
+// Elements
+let colourPicker = document.getElementById('colour-input');
+let timer = document.getElementById('time-left');
 
 const userEmail = await getEmail();
-console.log(`User email: ${userEmail}`);
+let inputAllowed = true;
 
-document.getElementById('welcome').innerText = `Welcome ${userEmail}!`;
+// Fetch from the server
+const topic = "Cat";
+let minutes = 5;
+let seconds = 0;
 
-drawGrid(50, 90);
+// Start the countdown loop
+timer.innerText = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+const timerInterval = setInterval(countdown, 1000);
+
+document.getElementById('logout-button').addEventListener('click', logout);
+document.getElementById('welcome').innerText = `Welcome, ${userEmail}`;
+colourPicker.addEventListener('input', function() {
+  const colour = this.value;
+  document.documentElement.style.setProperty('--selected-color', colour);
+});
+document.getElementById('topic').innerText = topic;
+
+document.documentElement.style.setProperty('--selected-color', colourPicker.value);
+
+drawGrid(rows, cols);
 
 function drawGrid(rows, cols) {
   let root = document.documentElement;
   let grid = document.getElementById('grid');
-  let blockSize = 0.8 * (grid.offsetWidth / cols);
+  let blockSize = 0.6 * (screen.width / cols);
   root.style.setProperty('--block-size', `${blockSize}px`);
 
   for (let i = 1; i <= rows; i++) {
@@ -23,8 +45,37 @@ function drawGrid(rows, cols) {
       block.className = 'block';
       block.dataset.row = i;
       block.dataset.col = j;
+      block.addEventListener('click', blockClickHandler);
       row.appendChild(block);
     }
     grid.appendChild(row);
   }
+}
+
+function blockClickHandler(event) {
+  if (!inputAllowed) return;
+
+  let block = event.target;
+  block.style.backgroundColor = colourPicker.value;
+  inputAllowed = false;
+
+  setTimeout(() => {
+    inputAllowed = true;
+  }, 30000);
+}
+
+function countdown() {
+  if (seconds === 0) {
+    if (minutes === 0) {
+      alert('Time is up!');
+      clearInterval(timerInterval);
+      inputAllowed = false;
+
+      return;
+    }
+    minutes--;
+    seconds = 60;
+  }
+  seconds--;
+  timer.innerText = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
 }
