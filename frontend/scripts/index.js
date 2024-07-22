@@ -5,7 +5,6 @@ const rows = 30;
 const cols = 50;
 const cooldownIntervalSeconds = 30;
 
-
 // Elements
 let root = document.documentElement;
 let colourPicker = document.getElementById('colour-input');
@@ -54,6 +53,7 @@ function drawGrid(rows, cols) {
     for (let j = 1; j <= cols; j++) {
       let block = document.createElement('div');
       block.className = 'block';
+      block.id = `block-${i}-${j}`;
       block.dataset.row = i;
       block.dataset.col = j;
       block.addEventListener('click', blockClickHandler);
@@ -93,8 +93,7 @@ function cooldown() {
 function countdown() {
   if (countdownSecondsRemaining === 0) {
     alert('Time is up!');
-    clearInterval(timerInterval);
-    inputAllowed = false;
+    endRound();
     return;
   }
   countdownSecondsRemaining--;
@@ -105,4 +104,47 @@ function parseSecondsToTimeLeft(seconds) {
   let minutes = Math.floor(seconds / 60);
   let remainingSeconds = seconds % 60;
   return `${minutes < 10 ? '0' : ''}${minutes}:${remainingSeconds < 10 ? '0' : ''}${remainingSeconds}`;
+}
+
+function endRound() {
+  roundOver = true;
+  clearInterval(timerInterval);
+  clearInterval(cooldownInterval);
+  inputAllowed = false;
+  grid.classList.add('disabled');
+}
+
+function updateBlockColour(row, col, colour) {
+  let block = document.getElementById(`block-${row}-${col}`);
+  block.style.backgroundColor = colour;
+}
+
+// MOCK FUNCTIONS
+setInterval(() => {
+  if (roundOver){
+    clearInterval();
+    return;
+  }
+  const row = getRandomInt(rows);
+  const col = getRandomInt(cols);
+  const color = getRandomColor();
+  let event = { row, col, color };
+  receiveEvent(event);
+}, 500);
+
+function receiveEvent(event) {
+  updateBlockColour(event.row, event.col, event.color);
+}
+
+function getRandomInt(max) {
+  return Math.floor(Math.random() * max);
+}
+
+function getRandomColor() {
+  const letters = '0123456789ABCDEF';
+  let color = '#';
+  for (let i = 0; i < 6; i++) {
+    color += letters[getRandomInt(16)];
+  }
+  return color;
 }
