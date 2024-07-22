@@ -1,3 +1,5 @@
+// Dont need to use this, just want it here for the future
+
 const Kafka = require('node-rdkafka');
 
 const topic = process.env.TOPIC;
