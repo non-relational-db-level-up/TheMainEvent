@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using System.Text.Json.Serialization;
 using MainEvent;
 using MainEvent.Api;
@@ -19,10 +20,21 @@ builder.Services.AddCors(options =>
 builder.Services.AddAuthorization();
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer();
 builder.Services.ConfigureOptions<JwtBearerConfigureOptions>();
+builder.Services.AddAuthorizationBuilder().AddPolicy(JwtBearerDefaults.AuthenticationScheme,
+    policy => policy.AddAuthenticationSchemes(JwtBearerDefaults.AuthenticationScheme)
+        .RequireClaim(ClaimTypes.NameIdentifier));
+
+builder.Services.AddLogging();
+
 
 builder.Services.ConfigureHttpJsonOptions(options =>
     options.SerializerOptions.TypeInfoResolverChain.Insert(0, AppJsonSerializerContext.Default));
 
+
+/*var ksqlUrl = builder.Configuration.GetSection("url").Get<string>() ?? "";
+var contextOptions = new KSqlDbContextOptionsBuilder().UseKSqlDb(ksqlUrl).SetEndpointType(EndpointType.QueryStream)
+    .Options;
+builder.Services.AddSingleton<IKSqlDBContext, KSqlDBContext>(_ => new KSqlDBContext(contextOptions));*/
 
 /*var producerConfig = new ProducerConfig { BootstrapServers = "localhost:29092" };
 builder.Services.AddSingleton<IProducer<Null, TestData>>(_ =>
@@ -66,13 +78,16 @@ var app = builder.Build();
 app.MapGet("/", () => "Health is ok!").AllowAnonymous();
 
 
-app.UseRouting();
+// app.UseRouting();
+
+
+var group = app.MapGroup("/board").RequireCors(allowSpecificOriginsPolicy)
+    .RequireAuthorization(JwtBearerDefaults.AuthenticationScheme);
+Endpoints.ResisterEndpoints(group);
 app.UseCors();
 app.UseAuthorization();
 app.UseAuthentication();
 
-var group = app.MapGroup("/board").RequireCors(allowSpecificOriginsPolicy).RequireAuthorization();
-Endpoints.ResisterEndpoints(group);
 app.Run();
 
 
