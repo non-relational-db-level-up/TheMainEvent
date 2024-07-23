@@ -2,6 +2,7 @@ import { getEmail, logout } from './authManager.js';
 import { connection, start } from './api.js';
 import { drawGrid } from './grid.js';
 
+
 // Open connection to backend
 start();
 
