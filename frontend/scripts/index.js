@@ -42,7 +42,7 @@ mainTimer.innerText = parseSecondsToTimeLeft(countdownSecondsRemaining);
 const timerInterval = setInterval(countdown, 1000);
 let cooldownInterval;
 
-drawGrid(rows, cols, 0.6, blockClickHandler);
+drawGrid(rows, cols, 0.7, blockClickHandler);
 
 document.getElementById('logout-button').addEventListener('click', connection);
 document.getElementById('welcome').innerText = `Welcome, ${userEmail}`;

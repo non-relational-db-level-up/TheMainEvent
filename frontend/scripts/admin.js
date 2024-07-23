@@ -46,3 +46,31 @@ function populatePastTopics() {
     });
 }
 
+
+function startSession() {
+  const accessToken = sessionStorage.getItem('accessToken');
+  const topic = document.getElementById('topic-input').value;
+
+  fetch('https://example.com/session', {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${accessToken}`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ topic: topic })
+  })
+    .then(response => {
+      if (response.ok) {
+        console.log('Session started');     }
+      else {
+        console.error('Error starting session:', response);
+      }
+    })
+    .catch(error => {
+      console.error('Error starting session:', error);
+    });
+}
+
+function initiateReplay(){
+  // WS conn to get events?
+}
