@@ -1,0 +1,35 @@
+#grid-container {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    padding: 1rem;
+  }
+  
+  #grid {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: nowrap;
+    gap: 0;
+  }
+  
+  .row {
+    display: inline-flex;
+    height: var(--block-size);
+    width: var(--grid-width);
+  }
+  
+  .block {
+    width: var(--block-size);
+    height: var(--block-size);
+    display: inline-block;
+    
+    background-color: white;
+    flex: none;
+  }
+  
+  .block:hover {
+    background-color: var(--selected-color) !important;
+    border: 1px solid black;
+  }

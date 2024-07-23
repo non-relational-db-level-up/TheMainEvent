@@ -42,7 +42,7 @@ button:hover {
   min-width: 100vw;
 }
 
-#grid-container {
+/* #grid-container {
   display: flex;
   justify-content: center;
   width: 100%;
@@ -75,7 +75,7 @@ button:hover {
 
 .block:hover {
   background-color: var(--selected-color) !important;
-}
+} */
 
 #sidebar {
   display: flex;

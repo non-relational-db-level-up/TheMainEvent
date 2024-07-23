@@ -1,7 +1,8 @@
 /* login.css */
 /* login.css */
 
-body, html {
+body,
+html {
     margin: 0;
     padding: 0;
     height: 100%;
@@ -22,25 +23,26 @@ body {
 #container {
     display: flex;
     width: 100%;
-    height: calc(100% - 60px); /* Adjusting for title height */
+    height: calc(100% - 60px);
+    /* Adjusting for title height */
 }
 
 #left-container {
-    flex: 1;
-    height: 100%;
-    overflow: hidden;
-    padding: 20px;
-    box-sizing: border-box;
-    border-right: 1px solid #ccc;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    width: 100%;
+    padding: 1rem; /* Optional: Add padding to the container */
+    box-sizing: border-box; /* Include padding and border in the element's total width */
 }
 
 #right-container {
-    flex: 2; /* Give more space to the right container */
-    height: 100%;
-    overflow: auto; /* Allow scrolling if content overflows */
-    padding: 20px;
-    box-sizing: border-box;
-    border-left: 1px solid #ccc;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    width: 100%;
+    padding: 1rem; /* Optional: Add padding to the container */
+    box-sizing: border-box; /* Include padding and border in the element's total width */
 }
 
 #change-table {
@@ -48,7 +50,8 @@ body {
     border-collapse: collapse;
 }
 
-#change-table th, #change-table td {
+#change-table th,
+#change-table td {
     border: 1px solid #ddd;
     padding: 8px;
 }
@@ -57,50 +60,45 @@ body {
     background-color: #f2f2f2;
     text-align: left;
 }
+
 #index-container {
     display: flex;
     flex-direction: row;
     flex-wrap: nowrap;
     align-items: center;
+    border: solid 1px #ccc;
     width: 100%;
 }
 
-:root {
-    --block-size: 20px; /* Default value, will be overridden by JS */
-}
-
-#grid-container {
-    display: flex;
-    justify-content: center; /* Center the grid horizontally */
-    align-items: center; /* Center the grid vertically */
-    /* width: 60vw; 60% of the viewport width */
-    max-height: 100vh; /* Ensure it does not exceed the viewport height */
-    padding: 1rem;
-    overflow: hidden; /* Prevent scrolling */
-    box-sizing: border-box; /* Include padding in the element's total width and height */
-}
-
-#grid {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    flex-wrap: nowrap;
-    gap: 0;
+#topic-selector {
     width: 100%;
-    max-height: 100%; /* Ensure it does not exceed the container's height */
-    box-sizing: border-box; /* Include padding and border in the element's total width and height */
+    box-sizing: border-box; 
+    margin-bottom: 1rem;
+    height: 2rem;
+    border-width: 0.5px;
+    border-color: #ccc;
 }
 
-.row {
-    display: inline-flex;
-    height: var(--block-size);
-    width: 100%; /* Full width of the grid container */
+#playback-button {
+    margin-left: auto;
+    margin-right: auto;
+    display: block;
+    margin-top: auto;
+    margin-bottom: auto;
 }
 
-.block {
-    width: var(--block-size);
-    height: var(--block-size);
-    display: inline-block;
-    border: 1px solid black;
-    box-sizing: border-box; /* Include padding and border in the element's total width and height */
+#start-session-button {
+    margin-left: auto;
+    margin-right: auto;
+    display: block;
+}
+
+#topic-input {
+    width: 100%;
+    box-sizing: border-box;
+    margin-bottom: 1rem;
+    margin-left: 1rem;
+    height: 4rem;
+    border-width: 0.5px;
+    border-color: #ccc;
 }

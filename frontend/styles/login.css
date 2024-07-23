@@ -38,13 +38,3 @@ body {
     margin: 20px 0;
 }
 
-#login-button {
-    background-color: #FFFFFF;
-    font-size: 30px;
-    font-weight: 600;
-    padding: 10px 20px;
-    border-radius: 67px;
-    border: 1px solid #000000;
-    cursor: pointer;
-}
-

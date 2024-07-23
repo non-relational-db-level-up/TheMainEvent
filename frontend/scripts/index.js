@@ -1,5 +1,6 @@
-import {getEmail, logout} from './authManager.js';
+import { getEmail, logout } from './authManager.js';
 import { connection, start } from './api.js';
+import { drawGrid } from './grid.js';
 
 // Open connection to backend
 start();
@@ -12,7 +13,7 @@ const countdownIntervalSeconds = 60;
 const playbackDuration = 10;
 
 // Elements
-let root = document.documentElement;
+// let root = document.documentElement;
 let colourPicker = document.getElementById('colour-input');
 let mainTimer = document.getElementById('time-left');
 let cooldownTimer = document.getElementById('cooldown-timer');
@@ -40,7 +41,7 @@ mainTimer.innerText = parseSecondsToTimeLeft(countdownSecondsRemaining);
 const timerInterval = setInterval(countdown, 1000);
 let cooldownInterval;
 
-drawGrid(rows, cols);
+drawGrid(rows, cols, 0.6, blockClickHandler);
 
 document.getElementById('logout-button').addEventListener('click', connection);
 document.getElementById('welcome').innerText = `Welcome, ${userEmail}`;
@@ -53,32 +54,12 @@ playbackButton.addEventListener('click', playback);
 
 document.documentElement.style.setProperty('--selected-color', colourPicker.value);
 
-function drawGrid(rows, cols) {
-  let blockSize = 0.6 * (screen.width / cols);
-  root.style.setProperty('--block-size', `${blockSize}px`);
-
-  for (let i = 1; i <= rows; i++) {
-    let row = document.createElement('section');
-    row.className = 'row';
-    for (let j = 1; j <= cols; j++) {
-      let block = document.createElement('div');
-      block.className = 'block';
-      block.id = `block-${i}-${j}`;
-      block.dataset.row = i;
-      block.dataset.col = j;
-        block.addEventListener('click', blockClickHandler);
-      row.appendChild(block);
-    }
-    grid.appendChild(row);
-  }
-}
-
 function blockClickHandler(event) {
   if (!inputAllowed) return;
 
   let block = event.target;
-  let newEvent = { 
-    row: parseInt(block.dataset.row, 10), 
+  let newEvent = {
+    row: parseInt(block.dataset.row, 10),
     col: parseInt(block.dataset.col, 10),
     colour: colourPicker.value
   };
@@ -158,7 +139,7 @@ function playback() {
 
 // MOCK FUNCTIONS
 setInterval(() => {
-  if (roundOver){
+  if (roundOver) {
     clearInterval();
     return;
   }
