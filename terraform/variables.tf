@@ -59,17 +59,6 @@ variable "logout_urls" {
   description = "The logout URLs for the identity provider."
 }
 
-variable "lambda_endpoint_config" {
-  type = map(object({ # The map key should be the route key eg: GET /helloworld
-    method            = string
-    description       = string
-    lambda_invoke_arn = string
-  }))
-  description = "The configuration for the integration of Lambda functions into API gateway."
-
-  default = {}
-}
-
 variable "cors_allowed_origins" {
   type        = list(string)
   description = "The allowed origins for CORS."
