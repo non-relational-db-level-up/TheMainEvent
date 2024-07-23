@@ -1,4 +1,4 @@
-import {getEmail, logout} from './authManager.js';
+import { getEmail, logout } from './authManager.js';
 
 const rows = 30;
 const cols = 50;
@@ -21,7 +21,7 @@ const timerInterval = setInterval(countdown, 1000);
 
 document.getElementById('logout-button').addEventListener('click', logout);
 document.getElementById('welcome').innerText = `Welcome, ${userEmail}`;
-colourPicker.addEventListener('input', function() {
+colourPicker.addEventListener('input', function () {
   const colour = this.value;
   document.documentElement.style.setProperty('--selected-color', colour);
 });
@@ -31,7 +31,7 @@ document.documentElement.style.setProperty('--selected-color', colourPicker.valu
 
 drawGrid(rows, cols);
 
-function drawGrid(rows, cols) {
+export function drawGrid(rows, cols, interactable = true) {
   let root = document.documentElement;
   let grid = document.getElementById('grid');
   let blockSize = 0.6 * (screen.width / cols);
@@ -45,7 +45,9 @@ function drawGrid(rows, cols) {
       block.className = 'block';
       block.dataset.row = i;
       block.dataset.col = j;
-      block.addEventListener('click', blockClickHandler);
+      if (interactable) {
+        block.addEventListener('click', blockClickHandler);
+      }
       row.appendChild(block);
     }
     grid.appendChild(row);

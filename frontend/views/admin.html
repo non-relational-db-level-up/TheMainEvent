@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="../styles/admin.css" />
+    <title>The Main Event | Admin</title>
+</head>
+
+<body>
+    <h1 class="title">The main event</h1>
+
+    <div id="container">
+        <section id="left-container">
+            <input type="text" id="topic-input" placeholder="Enter a topic" />
+            <button id="start-session-button">Start session</button>
+            <h2>User insights</h2>
+            <table id="change-table">
+                <thead>
+                    <tr>
+                        <th>Column 1</th>
+                        <th>Column 2</th>
+                        <th>Column 3</th>
+                        <th>Column 4</th>
+                    </tr>
+                </thead>
+                <tbody id="change-table-body">
+                </tbody>
+            </table>
+        </section>
+        <section id="right-container">
+            <select name="topic-selector" id="topic-selector"></select>
+            <section id="index-container">
+                <section id="grid-container">
+                    <section id="grid"></section>
+                </section>
+            </section>
+        </section>
+    </div>
+    <script type="module" src="../scripts/admin.js" defer></script>
+</body>
+
+</html>

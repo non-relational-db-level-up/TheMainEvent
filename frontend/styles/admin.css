@@ -1,0 +1,56 @@
+/* login.css */
+
+body, html {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    font-family: Arial, sans-serif;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.title {
+    text-align: center;
+    margin: 20px 0;
+}
+
+#container {
+    display: flex;
+    width: 100%;
+    height: calc(100% - 60px); /* Adjusting for title height */
+}
+
+#left-container, #right-container {
+    flex: 1;
+    height: 100%;
+    overflow: hidden;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+#left-container {
+    border-right: 1px solid #ccc;
+}
+
+#right-container {
+    border-left: 1px solid #ccc;
+}
+
+#change-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+#change-table th, #change-table td {
+    border: 1px solid #ddd;
+    padding: 8px;
+}
+
+#change-table th {
+    background-color: #f2f2f2;
+    text-align: left;
+}
