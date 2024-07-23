@@ -1,6 +1,8 @@
 import { drawGrid } from './grid.js';
 import { parseJwt } from './helpers/parseJwt.js';
 
+
+
 window.addEventListener('load', () => {
   const idToken = sessionStorage.getItem('accessToken');
   if (idToken) {

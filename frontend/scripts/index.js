@@ -14,7 +14,6 @@ const countdownIntervalSeconds = 60;
 const playbackDuration = 10;
 
 // Elements
-// let root = document.documentElement;
 let colourPicker = document.getElementById('colour-input');
 let mainTimer = document.getElementById('time-left');
 let cooldownTimer = document.getElementById('cooldown-timer');

@@ -31,5 +31,4 @@
   
   .block:hover {
     background-color: var(--selected-color) !important;
-    border: 1px solid black;
   }

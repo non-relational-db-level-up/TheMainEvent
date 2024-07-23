@@ -1,5 +1,4 @@
 /* login.css */
-/* login.css */
 
 body,
 html {
@@ -32,8 +31,8 @@ body {
     flex-direction: column;
     align-items: stretch;
     width: 100%;
-    padding: 1rem; /* Optional: Add padding to the container */
-    box-sizing: border-box; /* Include padding and border in the element's total width */
+    padding: 1rem; 
+    box-sizing: border-box; 
 }
 
 #right-container {
@@ -41,8 +40,8 @@ body {
     flex-direction: column;
     align-items: stretch;
     width: 100%;
-    padding: 1rem; /* Optional: Add padding to the container */
-    box-sizing: border-box; /* Include padding and border in the element's total width */
+    padding: 1rem; 
+    box-sizing: border-box; 
 }
 
 #change-table {
