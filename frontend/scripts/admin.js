@@ -1,3 +1,4 @@
+import { logout } from './authManager.js';
 import { drawGrid } from './grid.js';
 import { parseJwt } from './helpers/parseJwt.js';
 
@@ -21,6 +22,8 @@ window.addEventListener('load', () => {
 drawGrid(30, 50, 0.5, null);
 
 populatePastTopics();
+document.getElementById('logout-button').addEventListener('click', logout);
+
 
 
 function populatePastTopics() {
