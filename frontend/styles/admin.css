@@ -1,0 +1,122 @@
+/* login.css */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap');
+
+body,
+html {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    font-family: 'Poppins', sans-serif;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    font-family: 'Poppins', sans-serif;
+
+}
+.header {
+    width: 100vw;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    box-sizing: border-box;
+}
+
+.title {
+    margin: 0;
+    flex-grow: 1;
+    font-size: 60px;
+    text-align: center;
+}
+
+#logout-button {
+    margin-left: auto;
+    font-size: 16px;
+    font-weight: 600;
+    padding: 5px 10px;
+}
+#container {
+    display: flex;
+    width: 100%;
+    height: calc(100% - 60px);
+    /* Adjusting for title height */
+}
+
+#left-container {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    width: 100%;
+    padding: 1rem; 
+    box-sizing: border-box; 
+}
+
+#right-container {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    width: 100%;
+    padding: 1rem; 
+    box-sizing: border-box; 
+}
+
+#change-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+#change-table th,
+#change-table td {
+    border: 1px solid #ddd;
+    padding: 8px;
+}
+
+#change-table th {
+    background-color: #f2f2f2;
+    text-align: left;
+}
+
+#index-container {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    align-items: center;
+    border: solid 1px #ccc;
+    width: 100%;
+}
+
+#topic-selector {
+    width: 100%;
+    box-sizing: border-box; 
+    margin-bottom: 1rem;
+    height: 2rem;
+    border-width: 0.5px;
+    border-color: #ccc;
+}
+
+#playback-button {
+    margin-left: auto;
+    margin-right: auto;
+    display: block;
+    margin-top: auto;
+    margin-bottom: auto;
+}
+
+#start-session-button {
+    margin-left: auto;
+    margin-right: auto;
+    display: block;
+}
+
+#topic-input {
+    width: 100%;
+    box-sizing: border-box;
+    margin-bottom: 1rem;
+    margin-left: 1rem;
+    height: 4rem;
+    border-width: 0.5px;
+    border-color: #ccc;
+}

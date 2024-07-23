@@ -1,3 +1,5 @@
+import { parseJwt } from './helpers/parseJwt.js';
+
 function getHashParams() {
   const hash = window.location.hash.substring(1);
   const params = {};
@@ -16,9 +18,27 @@ window.addEventListener('load', () => {
   if (params.access_token && params.id_token) {
     sessionStorage.setItem('accessToken', params.access_token);
     sessionStorage.setItem('idToken', params.id_token);
-    window.location.href = "/index.html";
+    const idToken = sessionStorage.getItem('accessToken');
+
+    if (idToken) {
+      const decodedToken = parseJwt(idToken);
+      console.log(decodedToken);
+      const groups = decodedToken['cognito:groups'] || [];
+
+      if (groups.includes('Admin')) {
+        window.location.href = '/views/admin.html';
+      } else {
+        window.location.href = '/index.html';
+      }
+    }
   } else {
     console.error('No access token or ID token found');
     window.location.href = '/views/login.html';
   }
+});
+
+
+
+window.addEventListener('load', () => {
+
 });
