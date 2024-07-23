@@ -28,12 +28,8 @@ button:hover {
 }
 
 .disabled {
-  color: grey;
   cursor: not-allowed;
-}
-
-.disabled:hover {
-  background-color: whitesmoke;
+  pointer-events: none;
 }
 
 #index-container {
@@ -96,9 +92,10 @@ button:hover {
 }
 
 #topic {
-  font-size: 5rem;
+  font-size: 4rem;
   font-weight: 900;
   color: grey;
+  text-transform: uppercase;
 }
 
 .overlay-container {
