@@ -42,7 +42,7 @@ document.documentElement.style.setProperty('--selected-color', colourPicker.valu
 
 drawGrid(rows, cols);
 
-export function drawGrid(rows, cols, interactable = true) {
+export function drawGrid(rows, cols) {
 
   let root = document.documentElement;
   let grid = document.getElementById('grid');
@@ -57,9 +57,7 @@ export function drawGrid(rows, cols, interactable = true) {
       block.className = 'block';
       block.dataset.row = i;
       block.dataset.col = j;
-      if (interactable) {
         block.addEventListener('click', blockClickHandler);
-      }
       row.appendChild(block);
     }
     grid.appendChild(row);
