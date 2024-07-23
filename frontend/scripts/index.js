@@ -1,5 +1,8 @@
 import {getEmail, logout} from './authManager.js';
+import { connection, start } from './api.js';
 
+
+start();
 // Constants
 const rows = 30;
 const cols = 50;
@@ -38,7 +41,7 @@ let cooldownInterval;
 
 drawGrid(rows, cols);
 
-document.getElementById('logout-button').addEventListener('click', logout);
+document.getElementById('logout-button').addEventListener('click', connection);
 document.getElementById('welcome').innerText = `Welcome, ${userEmail}`;
 colourPicker.addEventListener('input', function() {
   const colour = this.value;
