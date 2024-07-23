@@ -1,15 +1,16 @@
 import { drawGrid } from './grid.js';
+import { parseJwt } from './helpers/parseJwt.js';
 
 window.addEventListener('load', () => {
-    const idToken = sessionStorage.getItem('accessToken');
-    if (idToken) {
-      const decodedToken = parseJwt(idToken);
-      const groups = decodedToken['cognito:groups'] || [];
-      if (!groups.includes('Admin')) {
-        window.location.href = '/index.html';
-      }
+  const idToken = sessionStorage.getItem('accessToken');
+  if (idToken) {
+    const decodedToken = parseJwt(idToken);
+    const groups = decodedToken['cognito:groups'] || [];
+    if (!groups.includes('Admin')) {
+      window.location.href = '/index.html';
     }
-     else {
+  }
+  else {
     console.error('No access token or ID token found');
     window.location.href = '/views/login.html';
   }
