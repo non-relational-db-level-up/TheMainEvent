@@ -14,20 +14,23 @@ public static class Endpoints
     {
         app.MapGet("/", GetAllBlocksCurrent);
         app.MapPost("/", AddBlock);
-        app.MapGet("/admin", StartNewSession);
+        app.MapPost("/admin", StartNewSession);
     }
 
     private static async Task StartNewSession(
         ILogger<Program> logger,
+        IConsumer<Null, MessageData> consumer,
         IKSqlDBContext context,
         ClaimsPrincipal claims,
         [FromBody] CreateSessionDto sessionDto
     )
     {
+        
+        // consumer.Subscribe("messages");
         // Register new topic/partition
         // Send clear state on WS 
         // Register our table on ksql
-        context.CreateOrReplaceTableStatement(sessionDto.TopicName).As<MessageData>();
+        // context.CreateOrReplaceTableStatement(sessionDto.TopicName).As<MessageData>();
         /*await adminClient.CreateTopicsAsync([
             new TopicSpecification { Name = "messages", NumPartitions = 1, ReplicationFactor = 1 }
         ]);*/
