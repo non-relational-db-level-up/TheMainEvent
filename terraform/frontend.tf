@@ -12,10 +12,48 @@ resource "aws_s3_bucket_versioning" "source_versioning" {
   }
 }
 
+resource "aws_s3_bucket_public_access_block" "app" {
+  bucket = aws_s3_bucket.app.bucket
+
+  block_public_acls       = false
+  block_public_policy     = false
+  ignore_public_acls      = false
+  restrict_public_buckets = false
+}
+
+resource "aws_s3_bucket_policy" "bucket-policy" {
+  bucket = aws_s3_bucket.app.bucket
+  policy = data.aws_iam_policy_document.bucket-policy.json
+
+  depends_on = [aws_s3_bucket_public_access_block.app]
+}
+
+resource "aws_s3_bucket_website_configuration" "app" {
+  bucket = aws_s3_bucket.app.bucket
+
+  index_document {
+    suffix = "index.html"
+  }
+
+  error_document {
+    key = "views/404.html"
+  }
+}
+
+resource "aws_s3_bucket_cors_configuration" "app" {
+  bucket = aws_s3_bucket.app.bucket
+
+  cors_rule {
+    allowed_methods = ["GET"]
+    allowed_origins = [aws_s3_bucket_website_configuration.app.website_endpoint]
+    max_age_seconds = 3000
+  }
+}
+
 ## Cloudfront
 resource "aws_cloudfront_distribution" "app" {
   origin {
-    domain_name = aws_s3_bucket.app.bucket_regional_domain_name
+    domain_name = aws_s3_bucket_website_configuration.app.website_endpoint
     origin_id   = aws_s3_bucket.app.bucket
 
     custom_origin_config {

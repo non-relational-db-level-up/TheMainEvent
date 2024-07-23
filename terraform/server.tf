@@ -52,6 +52,44 @@ resource "aws_vpc_security_group_egress_rule" "server" {
   cidr_ipv4         = "0.0.0.0/0"
 }
 
+resource "aws_security_group" "elb_sg" {
+  name        = "${var.naming_prefix}-elb-sg"
+  description = "Security group for the elastic load balancer"
+  vpc_id      = aws_vpc.vpc.id
+}
+
+resource "aws_vpc_security_group_ingress_rule" "elb_sg_http" {
+  security_group_id = aws_security_group.elb_sg.id
+  from_port         = 80
+  to_port           = 80
+  ip_protocol       = "tcp"
+  cidr_ipv4         = "0.0.0.0/0"
+}
+
+resource "aws_vpc_security_group_ingress_rule" "elb_sg_https" {
+  security_group_id = aws_security_group.elb_sg.id
+  from_port         = 443
+  to_port           = 443
+  ip_protocol       = "tcp"
+  cidr_ipv4         = "0.0.0.0/0"
+}
+
+resource "aws_vpc_security_group_egress_rule" "elb_sg_egress_http" {
+  security_group_id            = aws_security_group.elb_sg.id
+  from_port                    = 80
+  to_port                      = 80
+  ip_protocol                  = "tcp"
+  referenced_security_group_id = aws_security_group.server.id
+}
+
+resource "aws_vpc_security_group_egress_rule" "elb_sg_egress_https" {
+  security_group_id            = aws_security_group.elb_sg.id
+  from_port                    = 443
+  to_port                      = 443
+  ip_protocol                  = "tcp"
+  referenced_security_group_id = aws_security_group.server.id
+}
+
 ## Elastic Beanstalk
 resource "aws_elastic_beanstalk_application" "app" {
   name        = "${var.naming_prefix}-app"
@@ -68,6 +106,11 @@ resource "aws_elastic_beanstalk_environment" "env" {
     namespace = "aws:ec2:vpc"
     name      = "VPCId"
     value     = aws_vpc.vpc.id
+  }
+  setting {
+    namespace = "aws:ec2:vpc"
+    name      = "ELBSubnets"
+    value     = join(",", aws_subnet.public_subnets[*].id)
   }
   setting {
     namespace = "aws:ec2:vpc"
@@ -90,9 +133,39 @@ resource "aws_elastic_beanstalk_environment" "env" {
     value     = aws_security_group.server.id
   }
   setting {
+    namespace = "aws:autoscaling:asg"
+    name      = "MaxSize"
+    value     = "2"
+  }
+  setting {
     namespace = "aws:elasticbeanstalk:environment"
-    name      = "EnvironmentType"
-    value     = "SingleInstance"
+    name      = "LoadBalancerType"
+    value     = "application"
+  }
+  setting {
+    namespace = "aws:elbv2:loadbalancer"
+    name      = "SecurityGroups"
+    value     = aws_security_group.elb_sg.id
+  }
+  setting {
+    namespace = "aws:elbv2:loadbalancer"
+    name      = "IdleTimeout"
+    value     = "60"
+  }
+  setting {
+    namespace = "aws:elbv2:listener:443"
+    name      = "Protocol"
+    value     = "HTTPS"
+  }
+  setting {
+    namespace = "aws:elbv2:listener:443"
+    name      = "ListenerEnabled"
+    value     = "true"
+  }
+  setting {
+    namespace = "aws:elbv2:listener:443"
+    name      = "SSLCertificateArns"
+    value     = "arn:aws:acm:eu-west-1:229582503298:certificate/8d3b343a-e59a-45a0-802a-f8c84c36346c"
   }
   setting {
     namespace = "aws:elasticbeanstalk:environment"
