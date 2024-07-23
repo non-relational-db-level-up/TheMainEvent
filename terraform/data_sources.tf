@@ -61,7 +61,7 @@ data "aws_iam_policy_document" "bucket-policy" {
     actions = ["S3:GetObject"]
     principals {
       type        = "AWS"
-      identifiers = [aws_cloudfront_distribution.app.arn]
+      identifiers = ["arn:aws:iam::cloudfront:user/CloudFront Origin Access Identity ${aws_cloudfront_distribution.app.id}"]
     }
   }
 }
