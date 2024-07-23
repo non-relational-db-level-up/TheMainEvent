@@ -52,7 +52,7 @@ data "aws_iam_policy_document" "lambda" {
 
 data "aws_iam_policy_document" "bucket-policy" {
   statement {
-    sid    = "AllowCloudfront"
+    sid    = "AllowPublicRead"
     effect = "Allow"
     resources = [
       aws_s3_bucket.app.arn,
@@ -60,8 +60,8 @@ data "aws_iam_policy_document" "bucket-policy" {
     ]
     actions = ["S3:GetObject"]
     principals {
-      type        = "AWS"
-      identifiers = ["arn:aws:iam::cloudfront:user/CloudFront Origin Access Identity ${aws_cloudfront_distribution.app.id}"]
+      type        = "*"
+      identifiers = ["*"]
     }
   }
 }
