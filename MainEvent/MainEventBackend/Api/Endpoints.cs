@@ -1,6 +1,5 @@
 ﻿using System.Security.Claims;
 using Confluent.Kafka;
-using Confluent.Kafka.Admin;
 using ksqlDB.RestApi.Client.KSql.Query.Context;
 using MainEvent.DTO;
 using MainEvent.Models;

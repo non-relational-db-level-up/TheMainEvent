@@ -23,23 +23,14 @@ const string adminAuthPolicy = "admin_auth_policy";
 
 var builder = WebApplication.CreateSlimBuilder(args);
 var corsOrigins = builder.Configuration.GetSection("cors").Get<string[]>() ?? [];
-/*builder.Services.AddCors(options => options.AddPolicy(name: allowSpecificOriginsPolicy,
-    policy => policy.WithOrigins(["http://localhost:5500"])
-        .WithHeaders("Content-Type", "Authorization")
-        .WithMethods("GET", "POST", "DELETE", "OPTIONS")
-        .AllowCredentials()
-));*/
-
 builder.Services.AddCors(options =>
 {
-    options.AddDefaultPolicy(
-        builder =>
-        {
-            builder.WithOrigins("http://localhost:5500")
-                .AllowAnyHeader()
-                .AllowAnyMethod()
-                .AllowCredentials();
-        });
+    options.AddPolicy(name: allowSpecificOriginsPolicy,
+        policy => policy.WithOrigins(corsOrigins)
+            .WithHeaders("Content-Type", "Authorization", "x-requested-with", "x-signalr-user-agent")
+            .WithMethods("GET", "POST", "DELETE", "OPTIONS")
+            .AllowCredentials()
+    );
 });
 
 builder.Services.AddAuthorization();
@@ -50,12 +41,13 @@ builder.Services.AddAuthentication(AuthenticationScheme)
             {
                 OnMessageReceived = context =>
                 {
+                    // If we have an access token in the request and request is made from the websocket,
+                    // We can use it instead of the header (it seems like ws cant have headers)
                     var accessToken = context.Request.Query["access_token"];
 
-                    // If the request is for our hub...
+                    // If the request is for our hub 
                     var path = context.HttpContext.Request.Path;
-                    if (!string.IsNullOrEmpty(accessToken) &&
-                        (path.StartsWithSegments("/chatHub")))
+                    if (!string.IsNullOrEmpty(accessToken) && path.StartsWithSegments("/chatHub"))
                     {
                         // Read the token out of the query string
                         context.Token = accessToken;
@@ -71,10 +63,10 @@ builder.Services.AddAuthentication(AuthenticationScheme)
 // builder.Services.AddAuthentication(AuthenticationScheme).AddJwtBearer();
 builder.Services.ConfigureOptions<JwtBearerConfigureOptions>();
 builder.Services.AddAuthorizationBuilder().AddPolicy(defaultAuthPolicy,
-    policy => policy.AddAuthenticationSchemes(AuthenticationScheme).RequireClaim(ClaimTypes.NameIdentifier));
+policy => policy.AddAuthenticationSchemes(AuthenticationScheme).RequireClaim(ClaimTypes.NameIdentifier));
 
 builder.Services.AddAuthorizationBuilder().AddPolicy(adminAuthPolicy,
-    policy => policy.AddAuthenticationSchemes(AuthenticationScheme).RequireClaim("cognito:groups", "Admin"));
+policy => policy.AddAuthenticationSchemes(AuthenticationScheme).RequireClaim("cognito:groups", "Admin"));
 
 builder.Services.AddSignalR();
 builder.Services.AddLogging();
@@ -118,19 +110,7 @@ builder.Services.AddSingleton<IConsumer<Null, MessageData>>(_ => consumer);
 
 builder.Services.AddSingleton<IKafkaConsumerService, KafkaConsumerService>();
 
-
 var app = builder.Build();
-
-/*
-_ = Task.Run(async () =>
-{
-    var kafkaConsumerService = app.Services.GetRequiredService<IKafkaConsumerServiceCool>();
-    while (true)
-    {
-        kafkaConsumerService.Run();
-    }
-});
-*/
 
 var lifetime = app.Lifetime;
 var kafkaConsumerService = app.Services.GetRequiredService<IKafkaConsumerService>();
@@ -145,15 +125,13 @@ lifetime.ApplicationStarted.Register(() =>
 // Thanks EBS
 app.MapGet("/", () => "Health is ok!").AllowAnonymous();
 
-var group = app.MapGroup("/board").RequireAuthorization(defaultAuthPolicy);
-
+var group = app.MapGroup("/board").RequireCors(allowSpecificOriginsPolicy).RequireAuthorization("default_auth_policy");
 Endpoints.ResisterEndpoints(group);
+app.MapHub<ChatHub>("/chatHub").RequireCors(allowSpecificOriginsPolicy);
+
+app.UseCors();
 app.UseAuthorization();
 app.UseAuthentication();
-app.UseCors();
-
-
-app.MapHub<ChatHub>("/chatHub");
 
 
 app.Run();
