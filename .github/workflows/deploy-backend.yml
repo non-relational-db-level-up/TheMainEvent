@@ -27,24 +27,13 @@ jobs:
           role-session-name: github-dev-do-list-build
           aws-region: eu-west-1
 
-      - name: Setup dotnet cli
-        uses: actions/setup-dotnet@v4
-        with:
-          dotnet-version: 8.x
-
-      - name: Dotnet publish
-        run: |
-          dotnet restore;
-          dotnet publish -r linux-x64 --configuration "Release" --self-contained "true";
-        working-directory: backend
-
-      - name: Package artifact
+      - name: Package code
         run: zip -r ../site.zip *
-        working-directory: backend/bin/Release/net8.0/linux-x64/publish
+        working-directory: backend/MainEvent
 
       - name: Upload artifact to S3
         run: aws s3 cp site.zip s3://${{ secrets.BACKEND_BUCKET_NAME }}/application-${{ github.run_id }}.zip
-        working-directory: backend/bin/Release/net8.0/linux-x64
+        working-directory: backend
 
   deploy:
     runs-on: ubuntu-latest

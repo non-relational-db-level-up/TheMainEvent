@@ -14,6 +14,11 @@ resource "aws_iam_role_policy_attachment" "server" {
   role       = aws_iam_role.server.name
 }
 
+resource "aws_iam_role_policy_attachment" "server_ssm" {
+  policy_arn = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
+  role       = aws_iam_role.server.name
+}
+
 resource "aws_iam_role" "eb" {
   name               = "${var.naming_prefix}-eb-service-role"
   assume_role_policy = data.aws_iam_policy_document.beanstalk.json
@@ -99,7 +104,7 @@ resource "aws_elastic_beanstalk_application" "app" {
 resource "aws_elastic_beanstalk_environment" "env" {
   name                = "${var.naming_prefix}-env"
   application         = aws_elastic_beanstalk_application.app.name
-  solution_stack_name = "64bit Amazon Linux 2023 v3.1.3 running .NET 8"
+  solution_stack_name = "64bit Amazon Linux 2023 v4.3.4 running Docker"
   cname_prefix        = var.naming_prefix
 
   setting {

@@ -24,32 +24,6 @@ data "aws_iam_policy_document" "beanstalk" {
   }
 }
 
-data "aws_iam_policy_document" "gateway" {
-  statement {
-    effect = "Allow"
-
-    principals {
-      type        = "Service"
-      identifiers = ["apigateway.amazonaws.com"]
-    }
-
-    actions = ["sts:AssumeRole"]
-  }
-}
-
-data "aws_iam_policy_document" "lambda" {
-  statement {
-    effect = "Allow"
-
-    principals {
-      type        = "Service"
-      identifiers = ["lambda.amazonaws.com"]
-    }
-
-    actions = ["sts:AssumeRole"]
-  }
-}
-
 data "aws_iam_policy_document" "bucket-policy" {
   statement {
     sid    = "AllowPublicRead"
