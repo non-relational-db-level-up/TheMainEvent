@@ -49,3 +49,19 @@ data "aws_iam_policy_document" "lambda" {
     actions = ["sts:AssumeRole"]
   }
 }
+
+data "aws_iam_policy_document" "bucket-policy" {
+  statement {
+    sid    = "AllowCloudfront"
+    effect = "Allow"
+    resources = [
+      aws_s3_bucket.app.arn,
+      "arn:aws:s3:::${aws_s3_bucket.app.bucket}/*",
+    ]
+    actions = ["S3:GetObject"]
+    principals {
+      type        = "AWS"
+      identifiers = [aws_cloudfront_distribution.app.arn]
+    }
+  }
+}

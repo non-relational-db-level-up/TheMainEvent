@@ -12,6 +12,11 @@ resource "aws_s3_bucket_versioning" "source_versioning" {
   }
 }
 
+resource "aws_s3_bucket_policy" "bucket-policy" {
+  bucket = aws_s3_bucket.app.bucket
+  policy = data.aws_iam_policy_document.bucket-policy.json
+}
+
 ## Cloudfront
 resource "aws_cloudfront_distribution" "app" {
   origin {
