@@ -1,5 +1,20 @@
 import { drawGrid } from './grid.js';
 
+window.addEventListener('load', () => {
+    const idToken = sessionStorage.getItem('accessToken');
+    if (idToken) {
+      const decodedToken = parseJwt(idToken);
+      const groups = decodedToken['cognito:groups'] || [];
+      if (!groups.includes('Admin')) {
+        window.location.href = '/index.html';
+      }
+    }
+     else {
+    console.error('No access token or ID token found');
+    window.location.href = '/views/login.html';
+  }
+});
+
 drawGrid(30, 50, 0.5, null);
 
 populatePastTopics();
