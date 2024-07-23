@@ -1,8 +1,9 @@
 import {getEmail, logout} from './authManager.js';
 import { connection, start } from './api.js';
 
-
+// Open connection to backend
 start();
+
 // Constants
 const rows = 30;
 const cols = 50;
