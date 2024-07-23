@@ -7,7 +7,7 @@
 
 volumes:
   broker:
-  
+
 
 
 services:
@@ -38,12 +38,16 @@ services:
       KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
       KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
       KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      TOPIC_AUTO_CREATE: 'true'
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: 'true'
+      KAFKA_CFG_AUTO_CREATE_TOPICS_ENABLE: 'true'
+      
     # Rain check on this health check ;) 
-#    healthcheck:
-#      test: [ "CMD-SHELL", "kafka-topics.sh --bootstrap-server broker:9092 --list" ]
-#      interval: 5s
-#      timeout: 10s
-#      retries: 5
+  #    healthcheck:
+  #      test: [ "CMD-SHELL", "kafka-topics.sh --bootstrap-server broker:9092 --list" ]
+  #      interval: 5s
+  #      timeout: 10s
+  #      retries: 5
   
   kafka-ui:
     container_name: kafka-ui

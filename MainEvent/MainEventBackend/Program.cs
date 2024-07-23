@@ -1,11 +1,17 @@
 using System.Security.Claims;
 using System.Text.Json.Serialization;
+using Confluent.Kafka;
+using Confluent.Kafka.Admin;
 using ksqlDB.RestApi.Client.KSql.Query.Context;
 using ksqlDB.RestApi.Client.KSql.Query.Context.Options;
-using ksqlDB.RestApi.Client.KSql.Query.Options;
+using ksqlDB.RestApi.Client.KSql.RestApi.Statements;
 using MainEvent;
 using MainEvent.Api;
+using MainEvent.helpers;
+using MainEvent.Models;
 using static Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults;
+using AutoOffsetReset = Confluent.Kafka.AutoOffsetReset;
+using EndpointType = ksqlDB.RestApi.Client.KSql.Query.Options.EndpointType;
 
 const string allowSpecificOriginsPolicy = "allow_specific_origins_policy";
 const string defaultAuthPolicy = "default_auth_policy";
@@ -36,38 +42,51 @@ builder.Services.AddLogging();
 builder.Services.ConfigureHttpJsonOptions(options =>
     options.SerializerOptions.TypeInfoResolverChain.Insert(0, AppJsonSerializerContext.Default));
 
-
 var ksqlUrl = builder.Configuration.GetSection("KSql").GetValue<string>("url") ?? "";
 var contextOptions = new KSqlDbContextOptionsBuilder().UseKSqlDb(ksqlUrl).SetEndpointType(EndpointType.QueryStream)
     .Options;
-builder.Services.AddSingleton<IKSqlDBContext, KSqlDBContext>(_ => new KSqlDBContext(contextOptions));
+var kSqlDbContext = new KSqlDBContext(contextOptions);
+builder.Services.AddSingleton<IKSqlDBContext, KSqlDBContext>(_ => kSqlDbContext);
 
-/*var producerConfig = new ProducerConfig { BootstrapServers = "localhost:29092" };
-builder.Services.AddSingleton<IProducer<Null, TestData>>(_ =>
-    new ProducerBuilder<Null, TestData>(producerConfig).SetValueSerializer(new JsonSerializable<TestData>()).Build());
+kSqlDbContext.CreateOrReplaceTableStatement("messages").With(new EntityCreationMetadata("messages") { Partitions = 1 });
+
+
+var producerConfig = new ProducerConfig { BootstrapServers = "localhost:29092" };
+builder.Services.AddSingleton<IProducer<Null, MessageData>>(_ =>
+    new ProducerBuilder<Null, MessageData>(producerConfig).SetValueSerializer(new JsonSerializable<MessageData>())
+        .Build());
+
+var adminConfig = new AdminClientConfig { BootstrapServers = "localhost:29092" };
+var adminClient = new AdminClientBuilder(adminConfig).Build();
+// builder.Services.AddSingleton<IAdminClient>(_ => adminClient);
+
+// await adminClient.CreateTopicsAsync([
+    // new TopicSpecification { Name = "messages", NumPartitions = 1, ReplicationFactor = 1 }
+// ]);
 
 var consumerConfig = new ConsumerConfig
 {
     BootstrapServers = "localhost:29092",
-    GroupId = "kafka-dotnet-getting-started",
-    AutoOffsetReset = AutoOffsetReset.Earliest
+    GroupId = "Message consumer group",
+    AutoOffsetReset = AutoOffsetReset.Latest
 };
-var consumer = new ConsumerBuilder<Null, TestData>(consumerConfig)
-    .SetValueDeserializer(new JsonSerializable<TestData>())
-    .Build();*/
-// consumer.Subscribe("messages");
 
-//TODO this feels like it could be better 
-/*Task.Run(() =>
+var consumer = new ConsumerBuilder<Null, MessageData>(consumerConfig)
+    .SetValueDeserializer(new JsonSerializable<MessageData>())
+    .Build();
+consumer.Subscribe("messages");
+
+// Spin up a thread to handle the consumption of messages.
+_ = Task.Run(() =>
     {
         try
         {
             while (true)
             {
-                Console.WriteLine("We are consuming ");
                 var consumeResult = consumer.Consume();
-
                 //Todo: publish to websocket/Server sent event.
+                //Client publish 
+
                 Console.WriteLine(
                     $"Consumed event from topic messages: key = {consumeResult.Message.Key,-10} value = {consumeResult.Message.Value}");
             }
@@ -77,7 +96,7 @@ var consumer = new ConsumerBuilder<Null, TestData>(consumerConfig)
             consumer.Close();
         }
     }
-);*/
+);
 
 var app = builder.Build();
 // Thanks EBS
@@ -85,7 +104,9 @@ app.MapGet("/", () => "Health is ok!").AllowAnonymous();
 
 var group = app.MapGroup("/board")
     .RequireCors(allowSpecificOriginsPolicy)
-    .RequireAuthorization(adminAuthPolicy);
+    .RequireAuthorization(defaultAuthPolicy);
+
+
 Endpoints.ResisterEndpoints(group);
 app.UseCors();
 app.UseAuthorization();
@@ -94,7 +115,5 @@ app.UseAuthentication();
 app.Run();
 
 
-[JsonSerializable(typeof(TestData))]
+[JsonSerializable(typeof(MessageData))]
 internal partial class AppJsonSerializerContext : JsonSerializerContext;
-
-record TestData(int PosX, int PosY, int R, int G, int B);
