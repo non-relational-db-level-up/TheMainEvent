@@ -16,6 +16,8 @@ services:
     build:
       context: .
       dockerfile: MainEventBackend/Dockerfile
+    ports:
+      - "5000:8080"
   
   zookeeper:
     image: confluentinc/cp-zookeeper:7.4.0
