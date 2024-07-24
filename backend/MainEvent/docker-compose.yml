@@ -1,32 +1,20 @@
-﻿# services:
-#   mainevent:
-#     image: mainevent
-#     build:
-#       context: .
-#       dockerfile: MainEventBackend/Dockerfile
+﻿ # mainevent:
+  #   image: mainevent
+  #   container_name: mainevent
+  #   depends_on:
+  #     - broker
+  #   build:
+  #     context: .
+  #     dockerfile: MainEventBackend/Dockerfile
+  #   ports:
+  #     - "5000:8080"
 
 volumes:
   broker:
 
-
-
 services:
-  # mainevent:
-  #   image: ghcr.io/non-relational-db-level-up/themainevent:main
-  #   # build:
-  #     # context: .
-  #     # dockerfile: MainEventBackend/Dockerfile
-  #   ports:
-  #     - "5000:8080"
-
   mainevent:
-    image: mainevent
-    container_name: mainevent
-    depends_on:
-      - broker
-    build:
-      context: .
-      dockerfile: MainEventBackend/Dockerfile
+    image: ghcr.io/non-relational-db-level-up/themainevent:main
     ports:
       - "5000:8080"
   
