@@ -1,8 +1,0 @@
-{
-  "scripts": {
-    "install": "npm install"
-  },
-  "dependencies": {
-    "node-rdkafka": "^3.1.0"
-  }
-}

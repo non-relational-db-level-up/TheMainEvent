@@ -1,6 +1,6 @@
 
 const connection = new signalR.HubConnectionBuilder()
-    .withUrl("https://localhost:7048/chatHub", {
+    .withUrl("http://localhost:7048/chatHub", {
         accessTokenFactory: () => sessionStorage.getItem('accessToken')
     })
     .configureLogging(signalR.LogLevel.Information)
