@@ -63,3 +63,8 @@ variable "cors_allowed_origins" {
   type        = list(string)
   description = "The allowed origins for CORS."
 }
+
+variable "ec2_public_key" {
+  type        = string
+  description = "The public key to use for the EC2 instances."
+}

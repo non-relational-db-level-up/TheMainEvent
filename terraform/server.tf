@@ -34,6 +34,12 @@ resource "aws_iam_role_policy_attachment" "eb_managed_updates" {
   role       = aws_iam_role.eb.name
 }
 
+## Key
+resource "aws_key_pair" "server" {
+  key_name   = "${var.naming_prefix}-key-pair"
+  public_key = var.ec2_public_key
+}
+
 ## Security group
 resource "aws_security_group" "server" {
   name        = "${var.naming_prefix}-server-sg"
@@ -134,13 +140,18 @@ resource "aws_elastic_beanstalk_environment" "env" {
   }
   setting {
     namespace = "aws:autoscaling:launchconfiguration"
+    name      = "EC2KeyName"
+    value     = aws_key_pair.server.key_name
+  }
+  setting {
+    namespace = "aws:autoscaling:launchconfiguration"
     name      = "SecurityGroups"
     value     = aws_security_group.server.id
   }
   setting {
     namespace = "aws:autoscaling:asg"
     name      = "MaxSize"
-    value     = "2"
+    value     = "1"
   }
   setting {
     namespace = "aws:elasticbeanstalk:environment"
@@ -181,6 +192,11 @@ resource "aws_elastic_beanstalk_environment" "env" {
     namespace = "aws:elasticbeanstalk:healthreporting:system"
     name      = "SystemType"
     value     = "basic"
+  }
+  setting {
+    namespace = "aws:elasticbeanstalk:application"
+    name      = "Application Healthcheck URL"
+    value     = "/"
   }
   dynamic "setting" {
     for_each = var.environment_variables
