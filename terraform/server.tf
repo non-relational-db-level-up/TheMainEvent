@@ -198,6 +198,11 @@ resource "aws_elastic_beanstalk_environment" "env" {
     name      = "Application Healthcheck URL"
     value     = "/"
   }
+  setting {
+    namespace = "aws:elasticbeanstalk:command"
+    name      = "IgnoreHealthCheck"
+    value     = "true"
+  }
   dynamic "setting" {
     for_each = var.environment_variables
     content {
