@@ -34,6 +34,12 @@ resource "aws_iam_role_policy_attachment" "eb_managed_updates" {
   role       = aws_iam_role.eb.name
 }
 
+## Key
+resource "aws_key_pair" "server" {
+  key_name   = "${var.naming_prefix}-key-pair"
+  public_key = var.ec2_public_key
+}
+
 ## Security group
 resource "aws_security_group" "server" {
   name        = "${var.naming_prefix}-server-sg"
@@ -50,6 +56,22 @@ resource "aws_vpc_security_group_ingress_rule" "server" {
 }
 
 resource "aws_vpc_security_group_egress_rule" "server" {
+  security_group_id = aws_security_group.server.id
+  from_port         = 80
+  to_port           = 80
+  ip_protocol       = "tcp"
+  cidr_ipv4         = "0.0.0.0/0"
+}
+
+resource "aws_vpc_security_group_ingress_rule" "https" {
+  security_group_id = aws_security_group.server.id
+  from_port         = 443
+  to_port           = 443
+  ip_protocol       = "tcp"
+  cidr_ipv4         = "0.0.0.0/0"
+}
+
+resource "aws_vpc_security_group_egress_rule" "https" {
   security_group_id = aws_security_group.server.id
   from_port         = 443
   to_port           = 443
@@ -125,12 +147,17 @@ resource "aws_elastic_beanstalk_environment" "env" {
   setting {
     namespace = "aws:ec2:instances"
     name      = "InstanceTypes"
-    value     = "t3.micro"
+    value     = "t3.small"
   }
   setting {
     namespace = "aws:autoscaling:launchconfiguration"
     name      = "IamInstanceProfile"
     value     = aws_iam_instance_profile.server.name
+  }
+  setting {
+    namespace = "aws:autoscaling:launchconfiguration"
+    name      = "EC2KeyName"
+    value     = aws_key_pair.server.key_name
   }
   setting {
     namespace = "aws:autoscaling:launchconfiguration"
@@ -140,7 +167,7 @@ resource "aws_elastic_beanstalk_environment" "env" {
   setting {
     namespace = "aws:autoscaling:asg"
     name      = "MaxSize"
-    value     = "2"
+    value     = "1"
   }
   setting {
     namespace = "aws:elasticbeanstalk:environment"
@@ -181,6 +208,16 @@ resource "aws_elastic_beanstalk_environment" "env" {
     namespace = "aws:elasticbeanstalk:healthreporting:system"
     name      = "SystemType"
     value     = "basic"
+  }
+  setting {
+    namespace = "aws:elasticbeanstalk:application"
+    name      = "Application Healthcheck URL"
+    value     = "/"
+  }
+  setting {
+    namespace = "aws:elasticbeanstalk:command"
+    name      = "IgnoreHealthCheck"
+    value     = "true"
   }
   dynamic "setting" {
     for_each = var.environment_variables
