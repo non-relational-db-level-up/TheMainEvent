@@ -7,7 +7,7 @@ namespace MainEvent.helpers;
 
 public interface IKafkaConsumerService
 {
-    Task StartAsync(CancellationToken cancellationToken);
+    Task StartAsync( CancellationToken cancellationToken);
 }
 
 public class KafkaConsumerService(
@@ -15,10 +15,9 @@ public class KafkaConsumerService(
     IHubContext<ChatHub> hubContext)
     : IKafkaConsumerService
 {
-    public async Task StartAsync(CancellationToken cancellationToken)
+    public async Task StartAsync( CancellationToken cancellationToken)
     {
         // logger.LogInformation("We are spinning up a new service with DI for our R-Hub.");
-        consumer.Subscribe("messages");
         try
         {
             while (!cancellationToken.IsCancellationRequested)
