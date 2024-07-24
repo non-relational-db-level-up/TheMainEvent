@@ -63,7 +63,7 @@ resource "aws_vpc_security_group_egress_rule" "server" {
   cidr_ipv4         = "0.0.0.0/0"
 }
 
-resource "aws_vpc_security_group_ingress_rule" "server_https" {
+resource "aws_vpc_security_group_ingress_rule" "https" {
   security_group_id = aws_security_group.server.id
   from_port         = 443
   to_port           = 443
@@ -71,7 +71,7 @@ resource "aws_vpc_security_group_ingress_rule" "server_https" {
   cidr_ipv4         = "0.0.0.0/0"
 }
 
-resource "aws_vpc_security_group_egress_rule" "server_https" {
+resource "aws_vpc_security_group_egress_rule" "https" {
   security_group_id = aws_security_group.server.id
   from_port         = 443
   to_port           = 443
