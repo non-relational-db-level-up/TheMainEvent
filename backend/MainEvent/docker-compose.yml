@@ -12,10 +12,10 @@ volumes:
 
 services:
   mainevent:
-    image: mainevent
-    build:
-      context: .
-      dockerfile: MainEventBackend/Dockerfile
+    image: ghcr.io/non-relational-db-level-up/themainevent:main
+    # build:
+      # context: .
+      # dockerfile: MainEventBackend/Dockerfile
     ports:
       - "5000:8080"
   
