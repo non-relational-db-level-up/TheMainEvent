@@ -20,7 +20,6 @@ const string allowSpecificOriginsPolicy = "allow_specific_origins_policy";
 const string defaultAuthPolicy = "default_auth_policy";
 const string adminAuthPolicy = "admin_auth_policy";
 
-
 var builder = WebApplication.CreateSlimBuilder(args);
 var corsOrigins = builder.Configuration.GetSection("cors").Get<string[]>() ?? [];
 builder.Services.AddCors(options =>
@@ -63,10 +62,10 @@ builder.Services.AddAuthentication(AuthenticationScheme)
 // builder.Services.AddAuthentication(AuthenticationScheme).AddJwtBearer();
 builder.Services.ConfigureOptions<JwtBearerConfigureOptions>();
 builder.Services.AddAuthorizationBuilder().AddPolicy(defaultAuthPolicy,
-policy => policy.AddAuthenticationSchemes(AuthenticationScheme).RequireClaim(ClaimTypes.NameIdentifier));
+    policy => policy.AddAuthenticationSchemes(AuthenticationScheme).RequireClaim(ClaimTypes.NameIdentifier));
 
 builder.Services.AddAuthorizationBuilder().AddPolicy(adminAuthPolicy,
-policy => policy.AddAuthenticationSchemes(AuthenticationScheme).RequireClaim("cognito:groups", "Admin"));
+    policy => policy.AddAuthenticationSchemes(AuthenticationScheme).RequireClaim("cognito:groups", "Admin"));
 
 builder.Services.AddSignalR();
 builder.Services.AddLogging();
@@ -82,21 +81,23 @@ builder.Services.AddSingleton<IKSqlDBContext, KSqlDBContext>(_ => kSqlDbContext)
 
 kSqlDbContext.CreateOrReplaceTableStatement("messages").With(new EntityCreationMetadata("messages") { Partitions = 1 });
 
-var producerConfig = new ProducerConfig { BootstrapServers = "localhost:29092" };
+var producerConfig = new ProducerConfig { BootstrapServers = "broker:9092" };
 builder.Services.AddSingleton<IProducer<Null, MessageData>>(_ =>
     new ProducerBuilder<Null, MessageData>(producerConfig).SetValueSerializer(new JsonSerializable<MessageData>())
         .Build());
 
-var adminConfig = new AdminClientConfig { BootstrapServers = "localhost:29092" };
+var adminConfig = new AdminClientConfig { BootstrapServers = "broker:9092" };
 var adminClient = new AdminClientBuilder(adminConfig).Build();
-// builder.Services.AddSingleton<IAdminClient>(_ => adminClient);
-// await adminClient.CreateTopicsAsync([
-// new TopicSpecification { Name = "messages", NumPartitions = 1, ReplicationFactor = 1 }
-// ]);
+builder.Services.AddSingleton<IAdminClient, IAdminClient>(_ => adminClient);
+/*
+await adminClient.CreateTopicsAsync([
+    new TopicSpecification { Name = "messages", NumPartitions = 1, ReplicationFactor = 1 }
+]);
+*/
 
 var consumerConfig = new ConsumerConfig
 {
-    BootstrapServers = "localhost:29092",
+    BootstrapServers = "broker:9092",
     GroupId = "Message consumer group",
     AutoOffsetReset = AutoOffsetReset.Latest
 };
@@ -104,12 +105,28 @@ var consumerConfig = new ConsumerConfig
 var consumer = new ConsumerBuilder<Null, MessageData>(consumerConfig)
     .SetValueDeserializer(new JsonSerializable<MessageData>())
     .Build();
-consumer.Subscribe("messages");
-
+// consumer.Subscribe("messages");
 builder.Services.AddSingleton<IConsumer<Null, MessageData>>(_ => consumer);
 
-builder.Services.AddSingleton<IKafkaConsumerService, KafkaConsumerService>();
 
+/*
+var earliestConfig = new ConsumerConfig
+{
+    BootstrapServers = "broker:9092",
+    GroupId = "Test",
+    AutoOffsetReset = AutoOffsetReset.Earliest
+};
+
+var earliest = new ConsumerBuilder<Null, MessageData>(earliestConfig)
+    .SetValueDeserializer(new JsonSerializable<MessageData>())
+    .Build();
+earliest.Subscribe("messages");
+
+builder.Services.AddSingleton<IConsumer<Null, MessageData>>(_ => earliest);
+*/
+
+
+builder.Services.AddSingleton<IKafkaConsumerService, KafkaConsumerService>();
 var app = builder.Build();
 
 var lifetime = app.Lifetime;

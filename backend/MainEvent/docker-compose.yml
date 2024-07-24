@@ -4,18 +4,16 @@
 #     build:
 #       context: .
 #       dockerfile: MainEventBackend/Dockerfile
-
-volumes:
-  broker:
-
+#volumes:
+#  broker:
 
 
 services:
   mainevent:
     image: ghcr.io/non-relational-db-level-up/themainevent:main
-    # build:
+      # build:
       # context: .
-      # dockerfile: MainEventBackend/Dockerfile
+    # dockerfile: MainEventBackend/Dockerfile
     ports:
       - "5000:8080"
   
@@ -49,7 +47,7 @@ services:
       TOPIC_AUTO_CREATE: 'true'
       KAFKA_AUTO_CREATE_TOPICS_ENABLE: 'true'
       KAFKA_CFG_AUTO_CREATE_TOPICS_ENABLE: 'true'
-      
+    
     # Rain check on this health check ;) 
   #    healthcheck:
   #      test: [ "CMD-SHELL", "kafka-topics.sh --bootstrap-server broker:9092 --list" ]

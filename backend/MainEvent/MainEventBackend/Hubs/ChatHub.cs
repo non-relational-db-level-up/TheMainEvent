@@ -1,11 +1,12 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using Confluent.Kafka;
+using MainEvent.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
 
 namespace MainEvent.Hubs
 {
     public class ChatHub : Hub
     {
-        
         [Authorize]
         public override async Task OnConnectedAsync()
         {
