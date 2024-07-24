@@ -57,6 +57,22 @@ resource "aws_vpc_security_group_ingress_rule" "server" {
 
 resource "aws_vpc_security_group_egress_rule" "server" {
   security_group_id = aws_security_group.server.id
+  from_port         = 80
+  to_port           = 80
+  ip_protocol       = "tcp"
+  cidr_ipv4         = "0.0.0.0/0"
+}
+
+resource "aws_vpc_security_group_ingress_rule" "server_https" {
+  security_group_id = aws_security_group.server.id
+  from_port         = 443
+  to_port           = 443
+  ip_protocol       = "tcp"
+  cidr_ipv4         = "0.0.0.0/0"
+}
+
+resource "aws_vpc_security_group_egress_rule" "server_https" {
+  security_group_id = aws_security_group.server.id
   from_port         = 443
   to_port           = 443
   ip_protocol       = "tcp"
@@ -131,7 +147,7 @@ resource "aws_elastic_beanstalk_environment" "env" {
   setting {
     namespace = "aws:ec2:instances"
     name      = "InstanceTypes"
-    value     = "t3.micro"
+    value     = "t3.small"
   }
   setting {
     namespace = "aws:autoscaling:launchconfiguration"
