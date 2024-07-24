@@ -9,13 +9,14 @@
 
 
 services:
-  mainevent:
-    image: ghcr.io/non-relational-db-level-up/themainevent:main
-      # build:
-      # context: .
-    # dockerfile: MainEventBackend/Dockerfile
-    ports:
-      - "5000:8080"
+  #  mainevent:
+  #    image: ghcr.io/non-relational-db-level-up/themainevent:main
+  #      # build:
+  #      # context: .
+  #    # dockerfile: MainEventBackend/Dockerfile
+  #    ports:
+  #      - "5000:8080"
+  
   
   zookeeper:
     image: confluentinc/cp-zookeeper:7.4.0
@@ -35,11 +36,13 @@ services:
       - zookeeper
     ports:
       - "29092:29092"
+      - "9092:9092"
     environment:
       KAFKA_BROKER_ID: 1
       KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
       KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://broker:9092,PLAINTEXT_HOST://localhost:29092
+      KAFKA_LISTENERS: PLAINTEXT://broker:9092,PLAINTEXT_HOST://localhost:29092
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
       KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
       KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
@@ -88,3 +91,13 @@ services:
       - ksqldb-server
     entrypoint: /bin/sh
     tty: true
+
+  mev:
+    image: mainrevent111
+    ports:
+      - 5000:8080
+    environment:
+      - broker=127.0.0.1:29092
+    depends_on:
+      - broker
+  

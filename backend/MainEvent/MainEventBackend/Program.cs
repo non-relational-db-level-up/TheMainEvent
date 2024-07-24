@@ -32,6 +32,10 @@ builder.Services.AddCors(options =>
     );
 });
 
+var broker = builder.Configuration.GetSection("broker").Get<string>() ?? throw new NotImplementedException("No key ");
+broker = broker.Replace("ipv4#", "");
+broker = "broker:9092";
+
 builder.Services.AddAuthorization();
 builder.Services.AddAuthentication(AuthenticationScheme)
     .AddJwtBearer(options =>
@@ -86,7 +90,7 @@ builder.Services.AddSingleton<IProducer<Null, MessageData>>(_ =>
     new ProducerBuilder<Null, MessageData>(producerConfig).SetValueSerializer(new JsonSerializable<MessageData>())
         .Build());
 
-var adminConfig = new AdminClientConfig { BootstrapServers = "broker:9092" };
+var adminConfig = new AdminClientConfig { BootstrapServers = broker };
 var adminClient = new AdminClientBuilder(adminConfig).Build();
 builder.Services.AddSingleton<IAdminClient, IAdminClient>(_ => adminClient);
 /*
@@ -97,7 +101,7 @@ await adminClient.CreateTopicsAsync([
 
 var consumerConfig = new ConsumerConfig
 {
-    BootstrapServers = "broker:9092",
+    BootstrapServers = broker,
     GroupId = "Message consumer group",
     AutoOffsetReset = AutoOffsetReset.Latest
 };
@@ -112,7 +116,7 @@ builder.Services.AddSingleton<IConsumer<Null, MessageData>>(_ => consumer);
 /*
 var earliestConfig = new ConsumerConfig
 {
-    BootstrapServers = "broker:9092",
+    BootstrapServers = broker,
     GroupId = "Test",
     AutoOffsetReset = AutoOffsetReset.Earliest
 };
