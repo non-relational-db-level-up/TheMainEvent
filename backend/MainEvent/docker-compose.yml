@@ -11,6 +11,12 @@ volumes:
 
 
 services:
+  mainevent:
+    image: mainevent
+    build:
+      context: .
+      dockerfile: MainEventBackend/Dockerfile
+  
   zookeeper:
     image: confluentinc/cp-zookeeper:7.4.0
     hostname: zookeeper
