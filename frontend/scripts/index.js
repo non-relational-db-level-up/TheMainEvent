@@ -9,8 +9,8 @@ start();
 // Constants
 const rows = 30;
 const cols = 50;
-const cooldownIntervalSeconds = 3;
-const countdownIntervalSeconds = 15;
+const cooldownIntervalSeconds = 5;
+const countdownIntervalSeconds = 900;
 const playbackDuration = 10;
 
 // Elements
