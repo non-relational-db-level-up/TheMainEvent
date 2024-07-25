@@ -22,8 +22,4 @@ connection.onclose(async () => {
     await start();
 });
 
-connection.on("ReceiveMessage", (user, message) => {
-    console.log(`${user}: ${message}`);
-});
-
 export { connection, start };

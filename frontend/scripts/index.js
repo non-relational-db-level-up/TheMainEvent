@@ -67,6 +67,7 @@ function blockClickHandler(event) {
     col: parseInt(block.dataset.col, 10),
     colour: colourPicker.value
   };
+  console.log(newEvent);
   sendEvent(newEvent);
   inputAllowed = false;
   grid.classList.add('disabled');
@@ -157,13 +158,13 @@ connection.on("ReceiveMessage", (user, message) => {
         clearInterval();
         return;
       }
-  console.log(`${user}: ${message}`);
+  console.log(`${message}`);
   let data = JSON.parse(message);
   console.log(data);
   let event = {
     row: data.Row + 2,
     col: data.Column + 3,
-    colour: data.HexColour
+    colour: data.HexColour || "#000000"
   };
   console.log(event);
   receiveEvent(event);
