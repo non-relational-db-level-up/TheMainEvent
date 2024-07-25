@@ -1,10 +1,9 @@
 import { getEmail, logout } from './authManager.js';
 import { connection, start } from './api.js';
-import { drawGrid } from './grid.js';
-
+import { clearGrid, drawGrid } from './grid.js';
 
 // Open connection to backend
-start();
+// start();
 
 // Constants
 const rows = 30;
@@ -18,7 +17,6 @@ let colourPicker = document.getElementById('colour-input');
 let mainTimer = document.getElementById('time-left');
 let cooldownTimer = document.getElementById('cooldown-timer');
 let cooldownTimerContainer = document.getElementById('cooldown-timer-container');
-let grid = document.getElementById('grid');
 let playbackButton = document.getElementById('playback-button');
 
 // Variables
@@ -43,7 +41,7 @@ let cooldownInterval;
 
 drawGrid(rows, cols, 0.7, blockClickHandler);
 
-document.getElementById('logout-button').addEventListener('click', connection);
+document.getElementById('logout-button').addEventListener('click', logout);
 document.getElementById('welcome').innerText = `Welcome, ${userEmail}`;
 colourPicker.addEventListener('input', function () {
   const colour = this.value;
@@ -117,21 +115,11 @@ function updateBlockColour(row, col, colour) {
   block.style.backgroundColor = colour;
 }
 
-function clearGrid() {
-  for (let i = 1; i <= rows; i++) {
-    for (let j = 1; j <= cols; j++) {
-      let block = document.getElementById(`block-${i}-${j}`);
-      block.style.backgroundColor = 'white';
-    }
-  }
-}
-
 function playback() {
-  clearGrid();
+  clearGrid(rows, cols);
   const delay = (1000 * playbackDuration) / events.length;
   for (let i = 0; i < events.length; i++) {
     setTimeout(() => {
-      console.log(events[i]);
       updateBlockColour((events[i]).row, (events[i]).col, (events[i]).colour);
     }, delay * i); // Stagger the updates
   }
