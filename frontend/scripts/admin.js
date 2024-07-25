@@ -85,7 +85,8 @@ function startSession() {
   const accessToken = sessionStorage.getItem('accessToken');
   const topic = document.getElementById('topic-input').value;
 
-  fetch(`${backendUrl}/admin`, {
+  fetch(`${backendUrl}/board/admin`, {
+
     method: 'POST',
     headers: {
       'Authorization': `Bearer ${accessToken}`,
