@@ -4,7 +4,7 @@ import { clearGrid, drawGrid } from './grid.js';
 import { backendUrl } from './apiConfig.js';
 
 // Open connection to backend
-// start();
+start();
 
 // Constants
 const rows = 30;
@@ -51,7 +51,7 @@ colourPicker.addEventListener('input', function () {
 });
 playbackButton.addEventListener('click', () => playback(events, clearGrid));
 
-// Start the round
+// Start the round (Mocked)
 setTimeout(() => startRound('cat', countdownIntervalSeconds), 3000);
 
 drawGrid(rows, cols, 0.7, blockClickHandler);
@@ -118,9 +118,6 @@ function startRound(newTopic, secondsRemaining) {
   cooldownTimerContainer.style.display = 'none';
   events = [];
   roundOver = false;
-
-  // Mocked
-  startReceiving();
 }
 
 function endRound() {
@@ -153,18 +150,6 @@ function playback(events, clearGridFunction) {
 }
 
 // MOCK FUNCTIONS
-// setInterval(() => {
-//   if (roundOver) {
-//     clearInterval();
-//     return;
-//   }
-//   const row = getRandomInt(rows) + 1;
-//   const col = getRandomInt(cols) + 1;
-//   const colour = getRandomColor();
-//   let event = { row, col, colour };
-//   receiveEvent(event);
-// }, 100);
-
 connection.on("ReceiveMessage", (user, message) => {
   if (roundOver) {
         clearInterval();
@@ -182,7 +167,7 @@ connection.on("ReceiveMessage", (user, message) => {
   receiveEvent(event);
 });
 
-function sendEvenet(event) {
+function sendEvent(event) {
   const token = sessionStorage.getItem('accessToken');
   
   fetch(`${backendUrl}/board`, {
@@ -202,17 +187,4 @@ function receiveEvent(event) {
   // Server will push the event to the frontend
   events.push(event);
   updateBlockColour(event.row, event.col, event.colour);
-}
-
-function getRandomInt(max) {
-  return Math.floor(Math.random() * max);
-}
-
-function getRandomColor() {
-  const letters = '0123456789ABCDEF';
-  let color = '#';
-  for (let i = 0; i < 6; i++) {
-    color += letters[getRandomInt(16)];
-  }
-  return color;
 }
