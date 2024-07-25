@@ -175,7 +175,7 @@ connection.on("ReceiveMessage", (user, message) => {
 function sendEvenet(event) {
   const token = sessionStorage.getItem('accessToken');
   
-  fetch("http://localhost:5000/board", {
+  fetch(`${backendUrl}/board`, {
     method: 'GET',
     headers: {
         'Content-Type': 'application/json',
