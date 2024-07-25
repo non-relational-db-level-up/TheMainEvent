@@ -65,7 +65,7 @@ function blockClickHandler(event) {
   let newEvent = {
     row: parseInt(block.dataset.row, 10),
     col: parseInt(block.dataset.col, 10),
-    colour: colourPicker.value
+    hexColour: colourPicker.value
   };
   console.log(newEvent);
   sendEvent(newEvent);
