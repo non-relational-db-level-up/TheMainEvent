@@ -71,10 +71,13 @@ connection.on("ReceiveMessage", (message) => {
 
 connection.on("StartMessage", (message) => {
   let data = message;
+  if (!data.topic){
+    return;
+  }
   let topic = data.topic;
-  let endTime = data.endTime;
+  let secondsRemaining = data.endTime;
 
-  startRound(topic, calculateSecondsLeftFromDateTIme(endTime));
+  startRound(topic, secondsRemaining);
 });
 
 function sendEvent(event) {
