@@ -87,7 +87,13 @@ public static class Endpoints
                 new TopicSpecification { Name = sessionDto.TopicName, NumPartitions = 1, ReplicationFactor = 1 }
             ]);
 
-            await hubContext.Clients.All.SendAsync("StartMessage", topic);
+            var a = new
+            {
+                topic = topic.topic,
+                endTime = (topic.endTime - DateTime.Now).TotalSeconds,
+            };
+
+            await hubContext.Clients.All.SendAsync("StartMessage", a);
         }
         catch (Exception e)
         {
