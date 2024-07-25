@@ -24,15 +24,15 @@ namespace MainEvent.Hubs
         {
             if (string.IsNullOrEmpty(_topic.topic))
             {
-                if (_topic.endTime <= DateTime.Now)
-                {
-                    await base.OnConnectedAsync();
-                    return;
-                }
+                //if (_topic.endTime <= DateTime.Now)
+                //{
+                //    await base.OnConnectedAsync();
+                //    return;
+                //}
                 var a = new
                 {
                     topic = _topic.topic,
-                    endTime = (_topic.endTime - DateTime.Now).TotalSeconds,
+                    endTime = Math.Floor((_topic.endTime - DateTime.Now).TotalSeconds),
                 };
 
                 await Clients.Caller.SendAsync("StartMessage", a);
