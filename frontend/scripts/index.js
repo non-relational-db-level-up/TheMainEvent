@@ -2,7 +2,7 @@ import { getEmail, logout } from './authManager.js';
 import { connection, start } from './api.js';
 import { clearGrid, drawGrid } from './grid.js';
 import { backendUrl } from './apiConfig.js';
-import { parseSecondsToTimeLeft, calculateSecondsLeftFromDateTIme,  } from './helpers/time.js';
+import { parseSecondsToTimeLeft } from './helpers/time.js';
 
 // Open connection to backend
 start();
@@ -22,11 +22,6 @@ let playbackButton = document.getElementById('playback-button');
 let grid = document.getElementById('grid');
 let topic = document.getElementById('topic');
 let topicHeader = document.getElementById('topic-header');
-let messageButton = document.getElementById('submit-button');
-
-messageButton.addEventListener('click', async () => {
-  connection.invoke("SendMessage", userEmail, "hello");
-})
 
 // Variables
 const userEmail = await getEmail();
