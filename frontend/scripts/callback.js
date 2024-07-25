@@ -22,7 +22,6 @@ window.addEventListener('load', () => {
 
     if (idToken) {
       const decodedToken = parseJwt(idToken);
-      console.log(decodedToken);
       const groups = decodedToken['cognito:groups'] || [];
 
       if (groups.includes('Admin')) {

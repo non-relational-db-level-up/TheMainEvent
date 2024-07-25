@@ -13,7 +13,7 @@ async function start() {
         await connection.start();
         console.log("SignalR Connected.");
     } catch (err) {
-        console.log(err);
+        console.error(err);
         setTimeout(start, 5000);
     }
 };

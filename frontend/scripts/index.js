@@ -87,7 +87,6 @@ function sendEvent(event) {
     body: JSON.stringify(event)
     })
     .then(response => response.json())
-    .then(data => console.log(data))
     .catch(error => console.error('Error:', error));
 }
 
@@ -106,7 +105,6 @@ function blockClickHandler(event) {
     column: parseInt(block.dataset.col, 10),
     hexColour: colourPicker.value
   };
-  console.log(newEvent);
   sendEvent(newEvent);
   inputAllowed = false;
   grid.classList.add('disabled');
