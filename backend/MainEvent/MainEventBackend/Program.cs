@@ -24,12 +24,14 @@ var builder = WebApplication.CreateSlimBuilder(args);
 var corsOrigins = builder.Configuration.GetSection("cors").Get<string[]>() ?? [];
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy(name: allowSpecificOriginsPolicy,
-        policy => policy.WithOrigins(corsOrigins)
-            .WithHeaders("Content-Type", "Authorization", "x-requested-with", "x-signalr-user-agent")
-            .WithMethods("GET", "POST", "DELETE", "OPTIONS")
-            .AllowCredentials()
-    );
+    options.AddDefaultPolicy(
+    builder =>
+    {
+        builder.WithOrigins(corsOrigins)
+            .AllowAnyHeader()
+            .AllowAnyMethod()
+            .AllowCredentials();
+    });
 });
 
 builder.Services.AddAuthorization();
@@ -81,12 +83,13 @@ builder.Services.AddSingleton<IKSqlDBContext, KSqlDBContext>(_ => kSqlDbContext)
 
 kSqlDbContext.CreateOrReplaceTableStatement("messages").With(new EntityCreationMetadata("messages") { Partitions = 1 });
 
-var producerConfig = new ProducerConfig { BootstrapServers = "broker:9092" };
+var bootstrapServers = "54.154.112.105:29092";
+var producerConfig = new ProducerConfig { BootstrapServers = bootstrapServers };
 builder.Services.AddSingleton<IProducer<Null, MessageData>>(_ =>
     new ProducerBuilder<Null, MessageData>(producerConfig).SetValueSerializer(new JsonSerializable<MessageData>())
         .Build());
 
-var adminConfig = new AdminClientConfig { BootstrapServers = "broker:9092" };
+var adminConfig = new AdminClientConfig { BootstrapServers = bootstrapServers };
 var adminClient = new AdminClientBuilder(adminConfig).Build();
 builder.Services.AddSingleton<IAdminClient, IAdminClient>(_ => adminClient);
 /*
@@ -97,7 +100,7 @@ await adminClient.CreateTopicsAsync([
 
 var consumerConfig = new ConsumerConfig
 {
-    BootstrapServers = "broker:9092",
+    BootstrapServers = bootstrapServers,
     GroupId = "Message consumer group",
     AutoOffsetReset = AutoOffsetReset.Latest
 };
@@ -144,11 +147,11 @@ app.MapGet("/", () => "Health is ok!").AllowAnonymous();
 
 var group = app.MapGroup("/board").RequireCors(allowSpecificOriginsPolicy).RequireAuthorization("default_auth_policy");
 Endpoints.ResisterEndpoints(group);
-app.MapHub<ChatHub>("/chatHub").RequireCors(allowSpecificOriginsPolicy);
-
 app.UseCors();
 app.UseAuthorization();
 app.UseAuthentication();
+
+app.MapHub<ChatHub>("/chatHub");
 
 
 app.Run();
