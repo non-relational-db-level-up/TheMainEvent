@@ -10,6 +10,7 @@
   padding: 0;
   text-align: center;
   font-family: 'Poppins', sans-serif;
+  box-sizing: border-box;
 }
 
 body {
@@ -57,14 +58,16 @@ button:hover {
   margin-left: auto;
   gap: 1rem;
   min-width: 20%;
-  padding: 0 2rem;
+  max-width: 20%;
+  padding: 0 1rem;
   background-color: white;
   height: 100%;
 }
 
 #topic {
-  font-size: 4rem;
+  font-size: 3rem;
   font-weight: 900;
+  line-height: 2.8rem;
   color: grey;
   text-transform: uppercase;
 }

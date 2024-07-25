@@ -18,37 +18,37 @@ let mainTimer = document.getElementById('time-left');
 let cooldownTimer = document.getElementById('cooldown-timer');
 let cooldownTimerContainer = document.getElementById('cooldown-timer-container');
 let playbackButton = document.getElementById('playback-button');
+let grid = document.getElementById('grid');
+let topic = document.getElementById('topic');
+let topicHeader = document.getElementById('topic-header');
 
 // Variables
 const userEmail = await getEmail();
 let inputAllowed = true;
 let roundOver = false;
-let events = [];
-
-// Fetch from the server
-const topic = "Cat";
-let countdownSecondsRemaining = countdownIntervalSeconds;
+let countdownSecondsRemaining;
 let cooldownSecondsRemaining = 0;
+let cooldownInterval;
+let timerInterval;
+let events = [];
 
 if (cooldownSecondsRemaining === 0) {
   cooldownTimerContainer.style.display = 'none';
 }
 
-// Start the countdown loop
-mainTimer.innerText = parseSecondsToTimeLeft(countdownSecondsRemaining);
-const timerInterval = setInterval(countdown, 1000);
-let cooldownInterval;
-
-drawGrid(rows, cols, 0.7, blockClickHandler);
-
+// Set initial element attributes
 document.getElementById('logout-button').addEventListener('click', logout);
 document.getElementById('welcome').innerText = `Welcome, ${userEmail}`;
 colourPicker.addEventListener('input', function () {
   const colour = this.value;
   document.documentElement.style.setProperty('--selected-color', colour);
 });
-document.getElementById('topic').innerText = topic;
-playbackButton.addEventListener('click', playback);
+playbackButton.addEventListener('click', () => playback(events, clearGrid));
+
+// Start the round
+setTimeout(() => startRound('cat', countdownIntervalSeconds), 3000);
+
+drawGrid(rows, cols, 0.7, blockClickHandler);
 
 document.documentElement.style.setProperty('--selected-color', colourPicker.value);
 
@@ -61,13 +61,14 @@ function blockClickHandler(event) {
     col: parseInt(block.dataset.col, 10),
     colour: colourPicker.value
   };
-  sendEvenet(newEvent);
+  sendEvent(newEvent);
   inputAllowed = false;
   grid.classList.add('disabled');
 
   cooldownSecondsRemaining = cooldownIntervalSeconds;
   cooldownTimer.innerText = cooldownSecondsRemaining;
   cooldownTimerContainer.style.display = 'flex';
+  colourPicker.disabled = true;
   cooldownInterval = setInterval(cooldown, 1000);
 }
 
@@ -78,6 +79,7 @@ function cooldown() {
     inputAllowed = true;
     grid.classList.remove('disabled');
     cooldownTimerContainer.style.display = 'none';
+    colourPicker.disabled = false;
     return;
   }
   cooldownSecondsRemaining--;
@@ -100,6 +102,21 @@ function parseSecondsToTimeLeft(seconds) {
   return `${minutes < 10 ? '0' : ''}${minutes}:${remainingSeconds < 10 ? '0' : ''}${remainingSeconds}`;
 }
 
+function startRound(newTopic, secondsRemaining) {
+  topicHeader.innerText = 'Draw the following:';
+  topic.innerText = newTopic;
+  countdownSecondsRemaining = secondsRemaining;
+  mainTimer.innerText = parseSecondsToTimeLeft(countdownSecondsRemaining);
+  grid.classList.remove('disabled');
+  timerInterval = setInterval(countdown, 1000);
+  cooldownTimerContainer.style.display = 'none';
+  events = [];
+  roundOver = false;
+
+  // Mocked
+  startReceiving();
+}
+
 function endRound() {
   roundOver = true;
   clearInterval(timerInterval);
@@ -108,6 +125,8 @@ function endRound() {
   grid.classList.add('disabled');
   playbackButton.disabled = false;
   playbackButton.classList.remove('disabled');
+  colourPicker.disabled = true;
+  colourPicker.classList.add('disabled');
 }
 
 function updateBlockColour(row, col, colour) {
@@ -115,8 +134,9 @@ function updateBlockColour(row, col, colour) {
   block.style.backgroundColor = colour;
 }
 
-function playback() {
-  clearGrid(rows, cols);
+function playback(events, clearGridFunction) {
+  clearGridFunction(rows, cols);
+  // clearGrid(rows, cols);
   const delay = (1000 * playbackDuration) / events.length;
   for (let i = 0; i < events.length; i++) {
     setTimeout(() => {
@@ -126,23 +146,28 @@ function playback() {
 }
 
 // MOCK FUNCTIONS
-setInterval(() => {
-  if (roundOver) {
-    clearInterval();
-    return;
-  }
-  const row = getRandomInt(rows) + 1;
-  const col = getRandomInt(cols) + 1;
-  const colour = getRandomColor();
-  let event = { row, col, colour };
-  receiveEvent(event);
-}, 100);
+function startReceiving() {
+  setInterval(() => {
+    if (roundOver) {
+      clearInterval();
+      setTimeout(() => startRound('dog', countdownIntervalSeconds), 10000);
+      return;
+    }
+    const row = getRandomInt(rows) + 1;
+    const col = getRandomInt(cols) + 1;
+    const colour = getRandomColor();
+    let event = { row, col, colour };
+    receiveEvent(event);
+  }, 100);
+}
 
-function sendEvenet(event) {
+function sendEvent(event) {
+  // Hit endpoint to send event
   receiveEvent(event);
 }
 
 function receiveEvent(event) {
+  // Server will push the event to the frontend
   events.push(event);
   updateBlockColour(event.row, event.col, event.colour);
 }
