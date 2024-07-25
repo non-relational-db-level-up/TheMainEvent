@@ -2,6 +2,7 @@ import { getEmail, logout } from './authManager.js';
 import { connection, start } from './api.js';
 import { clearGrid, drawGrid } from './grid.js';
 import { backendUrl } from './apiConfig.js';
+import { parseSecondsToTimeLeft, calculateSecondsLeftFromDateTIme,  } from './helpers/time.js';
 
 // Open connection to backend
 start();
