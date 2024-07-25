@@ -23,7 +23,7 @@ const rows = 30;
 const cols = 50;
 const playbackDuration = 10;
 
-drawGrid(rows, cols, 0.5, null);
+drawGrid(rows, cols, 0.7, null);
 
 
 populatePastTopics();
