@@ -24,12 +24,14 @@ var builder = WebApplication.CreateSlimBuilder(args);
 var corsOrigins = builder.Configuration.GetSection("cors").Get<string[]>() ?? [];
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy(name: allowSpecificOriginsPolicy,
-        policy => policy.WithOrigins(corsOrigins)
-            .WithHeaders("Content-Type", "Authorization", "x-requested-with", "x-signalr-user-agent")
-            .WithMethods("GET", "POST", "DELETE", "OPTIONS")
-            .AllowCredentials()
-    );
+    options.AddDefaultPolicy(
+    builder =>
+    {
+        builder.WithOrigins(corsOrigins)
+            .AllowAnyHeader()
+            .AllowAnyMethod()
+            .AllowCredentials();
+    });
 });
 
 builder.Services.AddAuthorization();
@@ -144,11 +146,11 @@ app.MapGet("/", () => "Health is ok!").AllowAnonymous();
 
 var group = app.MapGroup("/board").RequireCors(allowSpecificOriginsPolicy).RequireAuthorization("default_auth_policy");
 Endpoints.ResisterEndpoints(group);
-app.MapHub<ChatHub>("/chatHub").RequireCors(allowSpecificOriginsPolicy);
-
 app.UseCors();
 app.UseAuthorization();
 app.UseAuthentication();
+
+app.MapHub<ChatHub>("/chatHub");
 
 
 app.Run();
