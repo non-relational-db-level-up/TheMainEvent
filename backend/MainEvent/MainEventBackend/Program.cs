@@ -29,7 +29,7 @@ builder.Services.AddCors(options =>
     {
         builder.WithOrigins(["http://localhost:5500", "https://themainevent.projects.bbdgrad.com"])
             .AllowAnyHeader()
-            .AllowAnyOrigin()
+            .AllowAnyMethod()
             .AllowCredentials();
     });
 });
