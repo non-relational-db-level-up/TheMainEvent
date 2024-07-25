@@ -152,6 +152,7 @@ function countdown() {
 function startRound(newTopic, secondsRemaining) {
   endRound();
   clearGrid(rows, cols);
+  inputAllowed = true;
   topicHeader.innerText = 'Draw the following:';
   topic.innerText = newTopic;
   countdownSecondsRemaining = secondsRemaining;
