@@ -21,15 +21,17 @@ const string defaultAuthPolicy = "default_auth_policy";
 const string adminAuthPolicy = "admin_auth_policy";
 
 var builder = WebApplication.CreateSlimBuilder(args);
-var corsOrigins = builder.Configuration.GetSection("cors").Get<string[]>() ?? [];
+//var corsOrigins = builder.Configuration.GetSection("cors").Get<string[]>() ?? ["http://localhost:5500"];
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy(name: allowSpecificOriginsPolicy,
-        policy => policy.WithOrigins(corsOrigins)
-            .WithHeaders("Content-Type", "Authorization", "x-requested-with", "x-signalr-user-agent")
-            .WithMethods("GET", "POST", "DELETE", "OPTIONS")
-            .AllowCredentials()
-    );
+    options.AddDefaultPolicy(
+    builder =>
+    {
+        builder.WithOrigins(["http://localhost:5500", "https://themainevent.projects.bbdgrad.com"])
+            .AllowAnyHeader()
+            .AllowAnyMethod()
+            .AllowCredentials();
+    });
 });
 
 builder.Services.AddAuthorization();
@@ -143,13 +145,13 @@ lifetime.ApplicationStarted.Register(() =>
 // Thanks EBS
 app.MapGet("/", () => "Health is ok!").AllowAnonymous();
 
-var group = app.MapGroup("/board").RequireCors(allowSpecificOriginsPolicy).RequireAuthorization("default_auth_policy");
+var group = app.MapGroup("/board").RequireAuthorization("default_auth_policy");
 Endpoints.ResisterEndpoints(group);
-app.MapHub<ChatHub>("/chatHub").RequireCors(allowSpecificOriginsPolicy);
-
 app.UseCors();
 app.UseAuthorization();
 app.UseAuthentication();
+
+app.MapHub<ChatHub>("/chatHub");
 
 
 app.Run();

@@ -1,3 +1,4 @@
+import { backendUrl } from './apiConfig.js';
 import { logout } from './authManager.js';
 import { drawGrid } from './grid.js';
 import { parseJwt } from './helpers/parseJwt.js';
@@ -85,7 +86,7 @@ function startSession() {
   const accessToken = sessionStorage.getItem('accessToken');
   const topic = document.getElementById('topic-input').value;
 
-  fetch('https://example.com/session', {
+  fetch(`${backendUrl}/session`, {
     method: 'POST',
     headers: {
       'Authorization': `Bearer ${accessToken}`,

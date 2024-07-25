@@ -1,6 +1,7 @@
+import { backendUrl } from "./apiConfig.js";
 
 const connection = new signalR.HubConnectionBuilder()
-    .withUrl("http://localhost:7048/chatHub", {
+    .withUrl(`${backendUrl}/chatHub`, {
         accessTokenFactory: () => sessionStorage.getItem('accessToken')
     })
     .configureLogging(signalR.LogLevel.Information)

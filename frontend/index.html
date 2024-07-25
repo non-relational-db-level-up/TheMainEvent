@@ -13,53 +13,39 @@
 <body>
     <section id="index-container">
         <section id="grid-container">
-            <section id="grid"></section>
+            <section id="grid" class="disabled"></section>
         </section>
         <section id="sidebar">
             <section>
                 <h1 id="welcome"></h1>
             </section>
             <section>
-                <h2>Draw the following:</h2>
-                <h3 id="topic"></h3>
+                <h2 id="topic-header"></h2>
+                <h3 id="topic">Awaiting Topic</h3>
             </section>
             <section>
-                <h2>Colour Picker</h2>
+                <h2>Colour picker</h2>
                 <section class="overlay-container">
-                    <input type="color" id="colour-input">
+                    <input type="color" id="colour-input" class="disabled" disabled>
                     <div id="cooldown-timer-container">
-                        <h3 id="cooldown-timer">30</h3>
+                        <h3 id="cooldown-timer">0</h3>
                     </div>
                 </section>
             </section>
-            <section>
-                <h2>Time Left</h2>
-                <h3 id="time-left"></h3>
+            <section id="time-section">
+                <h2>Time left</h2>
+                <h3 id="time-left">00:00</h3>
             </section>
             <section>
+                <button id="submit-button">Submit</button>
                 <button id="playback-button" class="disabled" disabled>Playback</button>
                 <button id="logout-button">Logout</button>
             </section>
         </section>
     </section>
 
-    <script>
-
-        fetch("http://localhost:7048/board", {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': 'Bearer eyJraWQiOiJicDlsZlUxUHVhOEp2MFkrOFlUMUdBR00zQm01cTBhMitcL3Q1cTlVSDJXQT0iLCJhbGciOiJSUzI1NiJ9.eyJzdWIiOiI1MjE1YzQxNC1hMGQxLTcwZGYtZDFjZS01MjdjODgxMDYwODAiLCJjb2duaXRvOmdyb3VwcyI6WyJldS13ZXN0LTFfT2tGZHQ3QVZpX0dvb2dsZSJdLCJpc3MiOiJodHRwczpcL1wvY29nbml0by1pZHAuZXUtd2VzdC0xLmFtYXpvbmF3cy5jb21cL2V1LXdlc3QtMV9Pa0ZkdDdBVmkiLCJ2ZXJzaW9uIjoyLCJjbGllbnRfaWQiOiIzcjNwajY1cmlzZmY4MGQ5OHJwazZiMjJuNyIsInRva2VuX3VzZSI6ImFjY2VzcyIsInNjb3BlIjoiYXdzLmNvZ25pdG8uc2lnbmluLnVzZXIuYWRtaW4gb3BlbmlkIHByb2ZpbGUgZW1haWwiLCJhdXRoX3RpbWUiOjE3MjE3NjY4NTMsImV4cCI6MTcyMTc3MDQ1MywiaWF0IjoxNzIxNzY2ODUzLCJqdGkiOiI1MWJjMzQ2Zi1hYjc2LTRmNjktYTEyZi0zN2I3ODJlMjhlMDAiLCJ1c2VybmFtZSI6Ikdvb2dsZV8xMDMyNjUwNTM2NzU2MTc2ODg5NzEifQ.rxvQ54xGyTG0HKUeTJiP3r3utImJYlDnaSQOQOXh9KhpSqFUY1SRe2utk7EU87SIlFL3O978ySzZP0KRG2Wc-fhaUz7W_ot7g10QcdHs0fLnzEbaYHlDO-HbUvCKoTQDHeyLaet59ZWrpux2L6NsKayO0W190W9n3vNleP_5mtSZaeKToFW-9JCP7jvO0SGJDYQcNLn1zHw6-cQg2zOhyuZtLQ0tWtyFCOn0iJVlz12rP6alRdzfuyHvjSvR_Rt9RNUMZ979iszYQXkmtPDaC8zTV0EKl6O3BNhkcCRQ26Wj98BIfDN6eSDu-aAUbcXsI8Y1igNNxjsBKmxPy4GPBA'
-            }
-        })
-            .then(response => response.json())
-            .then(data => console.log(data))
-            .catch(error => console.error('Error:', error));
-
-    </script>
-
-    <script type="module" src="scripts/index.js"></script>
     <script type="module" src="scripts/validateAuth.js"></script>
+    <script type="module" src="scripts/index.js"></script>
 </body>
 
 </html>
