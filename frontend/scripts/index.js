@@ -116,6 +116,8 @@ function startRound(newTopic, secondsRemaining) {
   grid.classList.remove('disabled');
   timerInterval = setInterval(countdown, 1000);
   cooldownTimerContainer.style.display = 'none';
+  colourPicker.disabled = false;
+  colourPicker.classList.remove('disabled');
   events = [];
   roundOver = false;
 }
