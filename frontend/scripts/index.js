@@ -10,7 +10,6 @@ start();
 const rows = 30;
 const cols = 50;
 const cooldownIntervalSeconds = 5;
-const countdownIntervalSeconds = 900;
 const playbackDuration = 10;
 
 // Elements
@@ -51,13 +50,54 @@ colourPicker.addEventListener('input', function () {
 });
 playbackButton.addEventListener('click', () => playback(events, clearGrid));
 
-// Start the round (Mocked)
-setTimeout(() => startRound('cat', countdownIntervalSeconds), 3000);
-
 drawGrid(rows, cols, 0.7, blockClickHandler);
 
 document.documentElement.style.setProperty('--selected-color', colourPicker.value);
 
+// Socket events
+connection.on("ReceiveMessage", (message) => {
+  if (roundOver) {
+    return;
+  }
+  let data = message;
+  let event = {
+    row: data.row,
+    col: data.column,
+    colour: data.hexColour || "#000000"
+  };
+  receiveEvent(event);
+});
+
+connection.on("StartMessage", (message) => {
+  let data = message;
+  let topic = data.topic;
+  let endTime = data.endTime;
+
+  startRound(topic, calculateSecondsLeftFromDateTIme(endTime));
+});
+
+function sendEvent(event) {
+  const token = sessionStorage.getItem('accessToken');
+  
+  fetch(`${backendUrl}/board`, {
+    method: 'POST',
+    headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+    body: JSON.stringify(event)
+    })
+    .then(response => response.json())
+    .then(data => console.log(data))
+    .catch(error => console.error('Error:', error));
+}
+
+function receiveEvent(event) {
+  events.push(event);
+  updateBlockColour(event.row, event.col, event.colour);
+}
+
+// Block handlers
 function blockClickHandler(event) {
   if (!inputAllowed) return;
 
@@ -79,6 +119,12 @@ function blockClickHandler(event) {
   cooldownInterval = setInterval(cooldown, 1000);
 }
 
+function updateBlockColour(row, col, colour) {
+  let block = document.getElementById(`block-${row}-${col}`);
+  block.style.backgroundColor = colour;
+}
+
+// Timer intervals
 function cooldown() {
   if (cooldownSecondsRemaining === 0) {
     cooldownTimer.innerText = '';
@@ -103,12 +149,7 @@ function countdown() {
   mainTimer.innerText = parseSecondsToTimeLeft(countdownSecondsRemaining);
 }
 
-function parseSecondsToTimeLeft(seconds) {
-  let minutes = Math.floor(seconds / 60);
-  let remainingSeconds = seconds % 60;
-  return `${minutes < 10 ? '0' : ''}${minutes}:${remainingSeconds < 10 ? '0' : ''}${remainingSeconds}`;
-}
-
+// Round logic
 function startRound(newTopic, secondsRemaining) {
   topicHeader.innerText = 'Draw the following:';
   topic.innerText = newTopic;
@@ -136,11 +177,6 @@ function endRound() {
   colourPicker.classList.add('disabled');
 }
 
-function updateBlockColour(row, col, colour) {
-  let block = document.getElementById(`block-${row}-${col}`);
-  block.style.backgroundColor = colour;
-}
-
 function playback(events, clearGridFunction) {
   clearGridFunction(rows, cols);
   // clearGrid(rows, cols);
@@ -150,45 +186,4 @@ function playback(events, clearGridFunction) {
       updateBlockColour((events[i]).row, (events[i]).col, (events[i]).colour);
     }, delay * i); // Stagger the updates
   }
-}
-
-// MOCK FUNCTIONS
-connection.on("ReceiveMessage", (message) => {
-  if (roundOver) {
-        clearInterval();
-        return;
-      }
-  console.log(message);
-  // let data = JSON.parse(message);
-  let data = message;
-  console.log(data);
-  let event = {
-    row: data.row,
-    col: data.column,
-    colour: data.hexColour || "#000000"
-  };
-  console.log(event);
-  receiveEvent(event);
-});
-
-function sendEvent(event) {
-  const token = sessionStorage.getItem('accessToken');
-  
-  fetch(`${backendUrl}/board`, {
-    method: 'POST',
-    headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`,
-      },
-    body: JSON.stringify(event)
-    })
-    .then(response => response.json())
-    .then(data => console.log(data))
-    .catch(error => console.error('Error:', error));
-}
-
-function receiveEvent(event) {
-  // Server will push the event to the frontend
-  events.push(event);
-  updateBlockColour(event.row, event.col, event.colour);
 }
