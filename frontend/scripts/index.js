@@ -1,8 +1,7 @@
 import { getEmail, logout } from './authManager.js';
 import { connection, start } from './api.js';
-import { drawGrid } from './grid.js';
+import { clearGrid, drawGrid } from './grid.js';
 import { backendUrl } from './apiConfig.js';
-
 
 // Open connection to backend
 start();
@@ -10,8 +9,8 @@ start();
 // Constants
 const rows = 30;
 const cols = 50;
-const cooldownIntervalSeconds = 30;
-const countdownIntervalSeconds = 60;
+const cooldownIntervalSeconds = 3;
+const countdownIntervalSeconds = 15;
 const playbackDuration = 10;
 
 // Elements
@@ -19,8 +18,10 @@ let colourPicker = document.getElementById('colour-input');
 let mainTimer = document.getElementById('time-left');
 let cooldownTimer = document.getElementById('cooldown-timer');
 let cooldownTimerContainer = document.getElementById('cooldown-timer-container');
-let grid = document.getElementById('grid');
 let playbackButton = document.getElementById('playback-button');
+let grid = document.getElementById('grid');
+let topic = document.getElementById('topic');
+let topicHeader = document.getElementById('topic-header');
 let messageButton = document.getElementById('submit-button');
 
 messageButton.addEventListener('click', async () => {
@@ -31,32 +32,29 @@ messageButton.addEventListener('click', async () => {
 const userEmail = await getEmail();
 let inputAllowed = true;
 let roundOver = false;
-let events = [];
-
-// Fetch from the server
-const topic = "Cat";
-let countdownSecondsRemaining = countdownIntervalSeconds;
+let countdownSecondsRemaining;
 let cooldownSecondsRemaining = 0;
+let cooldownInterval;
+let timerInterval;
+let events = [];
 
 if (cooldownSecondsRemaining === 0) {
   cooldownTimerContainer.style.display = 'none';
 }
 
-// Start the countdown loop
-mainTimer.innerText = parseSecondsToTimeLeft(countdownSecondsRemaining);
-const timerInterval = setInterval(countdown, 1000);
-let cooldownInterval;
-
-drawGrid(rows, cols, 0.7, blockClickHandler);
-
-document.getElementById('logout-button').addEventListener('click', connection);
+// Set initial element attributes
+document.getElementById('logout-button').addEventListener('click', logout);
 document.getElementById('welcome').innerText = `Welcome, ${userEmail}`;
 colourPicker.addEventListener('input', function () {
   const colour = this.value;
   document.documentElement.style.setProperty('--selected-color', colour);
 });
-document.getElementById('topic').innerText = topic;
-playbackButton.addEventListener('click', playback);
+playbackButton.addEventListener('click', () => playback(events, clearGrid));
+
+// Start the round (Mocked)
+setTimeout(() => startRound('cat', countdownIntervalSeconds), 3000);
+
+drawGrid(rows, cols, 0.7, blockClickHandler);
 
 document.documentElement.style.setProperty('--selected-color', colourPicker.value);
 
@@ -69,13 +67,14 @@ function blockClickHandler(event) {
     col: parseInt(block.dataset.col, 10),
     colour: colourPicker.value
   };
-  sendEvenet(newEvent);
+  sendEvent(newEvent);
   inputAllowed = false;
   grid.classList.add('disabled');
 
   cooldownSecondsRemaining = cooldownIntervalSeconds;
   cooldownTimer.innerText = cooldownSecondsRemaining;
   cooldownTimerContainer.style.display = 'flex';
+  colourPicker.disabled = true;
   cooldownInterval = setInterval(cooldown, 1000);
 }
 
@@ -86,6 +85,7 @@ function cooldown() {
     inputAllowed = true;
     grid.classList.remove('disabled');
     cooldownTimerContainer.style.display = 'none';
+    colourPicker.disabled = false;
     return;
   }
   cooldownSecondsRemaining--;
@@ -108,6 +108,18 @@ function parseSecondsToTimeLeft(seconds) {
   return `${minutes < 10 ? '0' : ''}${minutes}:${remainingSeconds < 10 ? '0' : ''}${remainingSeconds}`;
 }
 
+function startRound(newTopic, secondsRemaining) {
+  topicHeader.innerText = 'Draw the following:';
+  topic.innerText = newTopic;
+  countdownSecondsRemaining = secondsRemaining;
+  mainTimer.innerText = parseSecondsToTimeLeft(countdownSecondsRemaining);
+  grid.classList.remove('disabled');
+  timerInterval = setInterval(countdown, 1000);
+  cooldownTimerContainer.style.display = 'none';
+  events = [];
+  roundOver = false;
+}
+
 function endRound() {
   roundOver = true;
   clearInterval(timerInterval);
@@ -116,6 +128,9 @@ function endRound() {
   grid.classList.add('disabled');
   playbackButton.disabled = false;
   playbackButton.classList.remove('disabled');
+  cooldownTimerContainer.style.display = 'none';
+  colourPicker.disabled = true;
+  colourPicker.classList.add('disabled');
 }
 
 function updateBlockColour(row, col, colour) {
@@ -123,39 +138,18 @@ function updateBlockColour(row, col, colour) {
   block.style.backgroundColor = colour;
 }
 
-function clearGrid() {
-  for (let i = 1; i <= rows; i++) {
-    for (let j = 1; j <= cols; j++) {
-      let block = document.getElementById(`block-${i}-${j}`);
-      block.style.backgroundColor = 'white';
-    }
-  }
-}
-
-function playback() {
-  clearGrid();
+function playback(events, clearGridFunction) {
+  clearGridFunction(rows, cols);
+  // clearGrid(rows, cols);
   const delay = (1000 * playbackDuration) / events.length;
   for (let i = 0; i < events.length; i++) {
     setTimeout(() => {
-      console.log(events[i]);
       updateBlockColour((events[i]).row, (events[i]).col, (events[i]).colour);
     }, delay * i); // Stagger the updates
   }
 }
 
 // MOCK FUNCTIONS
-// setInterval(() => {
-//   if (roundOver) {
-//     clearInterval();
-//     return;
-//   }
-//   const row = getRandomInt(rows) + 1;
-//   const col = getRandomInt(cols) + 1;
-//   const colour = getRandomColor();
-//   let event = { row, col, colour };
-//   receiveEvent(event);
-// }, 100);
-
 connection.on("ReceiveMessage", (user, message) => {
   if (roundOver) {
         clearInterval();
@@ -173,7 +167,7 @@ connection.on("ReceiveMessage", (user, message) => {
   receiveEvent(event);
 });
 
-function sendEvenet(event) {
+function sendEvent(event) {
   const token = sessionStorage.getItem('accessToken');
   
   fetch(`${backendUrl}/board`, {
@@ -190,19 +184,7 @@ function sendEvenet(event) {
 }
 
 function receiveEvent(event) {
+  // Server will push the event to the frontend
   events.push(event);
   updateBlockColour(event.row, event.col, event.colour);
-}
-
-function getRandomInt(max) {
-  return Math.floor(Math.random() * max);
-}
-
-function getRandomColor() {
-  const letters = '0123456789ABCDEF';
-  let color = '#';
-  for (let i = 0; i < 6; i++) {
-    color += letters[getRandomInt(16)];
-  }
-  return color;
 }

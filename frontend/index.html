@@ -13,28 +13,28 @@
 <body>
     <section id="index-container">
         <section id="grid-container">
-            <section id="grid"></section>
+            <section id="grid" class="disabled"></section>
         </section>
         <section id="sidebar">
             <section>
                 <h1 id="welcome"></h1>
             </section>
             <section>
-                <h2>Draw the following:</h2>
-                <h3 id="topic"></h3>
+                <h2 id="topic-header"></h2>
+                <h3 id="topic">Awaiting Topic</h3>
             </section>
             <section>
-                <h2>Colour Picker</h2>
+                <h2>Colour picker</h2>
                 <section class="overlay-container">
-                    <input type="color" id="colour-input">
+                    <input type="color" id="colour-input" class="disabled" disabled>
                     <div id="cooldown-timer-container">
-                        <h3 id="cooldown-timer">30</h3>
+                        <h3 id="cooldown-timer">0</h3>
                     </div>
                 </section>
             </section>
-            <section>
-                <h2>Time Left</h2>
-                <h3 id="time-left"></h3>
+            <section id="time-section">
+                <h2>Time left</h2>
+                <h3 id="time-left">00:00</h3>
             </section>
             <section>
                 <button id="submit-button">Submit</button>
@@ -44,8 +44,8 @@
         </section>
     </section>
 
-    <script type="module" src="scripts/index.js"></script>
     <script type="module" src="scripts/validateAuth.js"></script>
+    <script type="module" src="scripts/index.js"></script>
 </body>
 
 </html>
