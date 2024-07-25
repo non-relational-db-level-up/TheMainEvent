@@ -1,5 +1,6 @@
 ﻿using System.Reactive.Linq;
 using System.Security.Claims;
+using System.Threading;
 using Confluent.Kafka;
 using Confluent.Kafka.Admin;
 using ksqlDB.RestApi.Client.KSql.Linq;
@@ -9,15 +10,17 @@ using ksqlDB.RestApi.Client.KSql.RestApi.Serialization;
 using ksqlDB.RestApi.Client.KSql.RestApi.Statements;
 using MainEvent.DTO;
 using MainEvent.helpers;
+using MainEvent.Helpers;
+using MainEvent.Hubs;
 using MainEvent.Models;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 
 namespace MainEvent.Api;
 
 public static class Endpoints
 {
-    private static string _messageGroup = "";
     private static readonly Dictionary<string, DateTime> PreventionMap = new();
     private static DateTime _endGameTime;
     
@@ -26,13 +29,13 @@ public static class Endpoints
     {
         app.MapGet("/", GetAllBlocksCurrent);
         app.MapPost("/", AddBlock);
-        app.MapPost("/admin", StartNewSession);
+        app.MapPost("/admin", StartNewSession)
+            .RequireAuthorization("admin_auth_policy");
         app.MapPost("/test", Test);
     }
 
     private static List<MessageData> Test(
         ILogger<Program> logger,
-        // IConsumer<Null, MessageData> consumer,
         IKSqlDBContext context
     )
     {
@@ -46,11 +49,7 @@ public static class Endpoints
             .SetValueDeserializer(new JsonSerializable<MessageData>())
             .Build();
         consumer.Subscribe("cool");
-        /*consumer.Subscribe("messages");
-        var partitions = consumer.Assignment.Select(tp => new TopicPartitionOffset(tp, Offset.Beginning)).ToList();
-        consumer.Assign(partitions);*/
 
-        // consumer.Subscribe("messages");
         var messages = new List<MessageData>();
         var flag = false;
         while (true)
@@ -63,62 +62,29 @@ public static class Endpoints
         }
 
         return messages;
-
-        // return context.CreatePullQuery<MessageData>().GetManyAsync();
-
-        /*await context.CreateTableStatement("MESSAGEDATA").As<MessageData>().ExecuteStatementAsync();
-        var asyncEnumerable = context.CreatePullQuery<MessageData>().GetManyAsync();
-        await foreach (var messageData in asyncEnumerable)
-        {
-            Console.WriteLine(messageData);
-        }*/
-
-        // consumer.PositionTopicPartitionOffset()
-
-        /*
-        var createStatement = context.CreateTableStatement("MESSAGEDATA")
-            .As<MessageData>();
-        // var createStatement = context.CreateOrReplaceTableStatement("messages").As<MessageData>();
-        await createStatement.ExecuteStatementAsync();
-        var asyncEnumerable = context.CreatePullQuery<MessageData>().GetManyAsync();
-        await foreach (var messageData in asyncEnumerable)
-        {
-            Console.WriteLine(messageData);
-        }
-        */
-
-
-        // var consumeResult = consumer.Consume();
-        // consumer.
-
-        // Console.WriteLine(consumeResult);
-        // consumer.Subscribe("messages");
-        // Register new topic/partition
-        // Send clear state on WS 
-        // Register our table on ksql
-        // context.CreateOrReplaceTableStatement(sessionDto.TopicName).As<MessageData>();
-        /*await adminClient.CreateTopicsAsync([
-            new TopicSpecification { Name = "messages", NumPartitions = 1, ReplicationFactor = 1 }
-        ]);*/
-
-        // Start listening and publishing on new 
     }
 
     private static async Task StartNewSession(
+        Itopic topic,
         ILogger<Program> logger,
         IConsumer<Null, MessageData> consumer,
         IAdminClient adminClient,
         IKSqlDBContext context,
+        IHubContext<ChatHub> hubContext,
         ClaimsPrincipal claims,
         [FromBody] CreateSessionDto sessionDto
     )
     {
-        _messageGroup = sessionDto.TopicName;
+        topic.topic = sessionDto.TopicName;
+        topic.endDate = DateTime.Now.AddMinutes(10);
+
         try
         {
             await adminClient.CreateTopicsAsync([
                 new TopicSpecification { Name = sessionDto.TopicName, NumPartitions = 1, ReplicationFactor = 1 }
             ]);
+
+            await hubContext.Clients.All.SendAsync("StartMessage", topic);
         }
         catch (Exception e)
         {
@@ -126,71 +92,6 @@ public static class Endpoints
         }
 
         consumer.Subscribe(sessionDto.TopicName);
-        /*var creationMetadata = new CreationMetadata
-        {
-            KafkaTopic = "cool",
-            ValueFormat = SerializationFormats.Json
-        };
-        var executeStatementAsync = await context.CreateOrReplaceStreamStatement("MessageData").With(creationMetadata).As<MessageData>().ExecuteStatementAsync();
-        if (executeStatementAsync.IsSuccessStatusCode)
-        {
-
-        }*/
-
-        // adminClient.top
-
-        // consumer.Subscribe("messages");
-        // Register new topic/partition
-        // Send clear state on WS 
-        // Register our table on ksql
-        // context.CreateOrReplaceTableStatement(sessionDto.TopicName).As<MessageData>();
-        /*await adminClient.CreateTopicsAsync([
-            new TopicSpecification { Name = "messages", NumPartitions = 1, ReplicationFactor = 1 }
-        ]);*/
-
-        // Start listening and publishing on new 
-    }
-
-    private static async Task createTableForTopic()
-    {
-        string ksqlEndpoint = "http://localhost:8088"; // Change this to your ksqlDB server endpoint
-        string ksqlQuery = @"
-            CREATE STREAM test_data (
-                Row INT,
-                Column INT,
-                HexColour STRING,
-                UserId STRING
-            ) WITH (
-                KAFKA_TOPIC = 'test_topic',
-                VALUE_FORMAT = 'JSON'
-            );
-        ";
-
-        var ksqlRequest = new
-        {
-            ksql = ksqlQuery,
-            streamsProperties = new { }
-        };
-
-        var httpClient = new HttpClient();
-
-        try
-        {
-            var response = await httpClient.PostAsJsonAsync(ksqlEndpoint, ksqlRequest);
-            if (response.IsSuccessStatusCode)
-            {
-                Console.WriteLine("Stream created successfully.");
-            }
-            else
-            {
-                var errorContent = await response.Content.ReadAsStringAsync();
-                Console.WriteLine($"Failed to create stream: {errorContent}");
-            }
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Error: {ex.Message}");
-        }
     }
 
     private static IAsyncEnumerable<MessageData> GetAllBlocksCurrent(
@@ -201,19 +102,10 @@ public static class Endpoints
     {
         // TODO: use sql like thingy to make call to the latest board state
         return context.CreatePullQuery<MessageData>().GetManyAsync();
-        // var observable = context.CreatePushQuery<TestData>().ToObservable();
-        /*var observable = context.CreatePullQuery<TestData>()
-            .Take(2)
-            .ToObservable()
-            .Select(data => data)
-            .Subscribe(Console.WriteLine,
-                error => Console.WriteLine($"Exception: {error.Message}"),
-                () => Console.WriteLine("Completed"));
-        Console.WriteLine(observable);*/
-        // return TypedResults.Json(claims.Claims.Select(claim => $"V - {claim.Value}\t\tT - {claim.Type}"));
     }
 
     private static async Task<JsonHttpResult<string>> AddBlock(
+        Itopic topic,
         ILogger<Program> logger,
         IProducer<Null, MessageData> producer,
         ClaimsPrincipal claims,
@@ -234,7 +126,7 @@ public static class Endpoints
 
 
         // TODO: figure out if we need to do this as partition or on different topic. 
-        await producer.ProduceAsync(_messageGroup, new Message<Null, MessageData>
+        await producer.ProduceAsync(topic.topic, new Message<Null, MessageData>
         {
             Value = new MessageData(data.Row, data.Column, data.HexColour, userSid)
         });
