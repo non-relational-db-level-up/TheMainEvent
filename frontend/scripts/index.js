@@ -151,7 +151,19 @@ setInterval(() => {
 }, 100);
 
 function sendEvenet(event) {
-  receiveEvent(event);
+  const token = sessionStorage.getItem('accessToken');
+  
+  fetch("http://localhost:5000/board", {
+    method: 'GET',
+    headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+    body: JSON.stringify(event)
+    })
+    .then(response => response.json())
+    .then(data => console.log(data))
+    .catch(error => console.error('Error:', error));
 }
 
 function receiveEvent(event) {
