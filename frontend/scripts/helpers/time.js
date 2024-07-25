@@ -4,7 +4,7 @@ function parseSecondsToTimeLeft(seconds) {
   }
   let minutes = Math.floor(seconds / 60);
   let remainingSeconds = seconds % 60;
-  return `${minutes < 10 ? '0' : ''}${minutes}:${remainingSeconds < 10 ? '0' : ''}${remainingSeconds}`;
+  return `${minutes < 10 ? '0' : ''}${floor(minutes)}:${remainingSeconds < 10 ? '0' : ''}${floor(remainingSeconds)}`;
 }
 
 export { parseSecondsToTimeLeft };
