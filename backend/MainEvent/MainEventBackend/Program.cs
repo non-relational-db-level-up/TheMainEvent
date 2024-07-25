@@ -28,8 +28,8 @@ builder.Services.AddCors(options =>
     builder =>
     {
         builder.WithOrigins(corsOrigins)
-            .AllowAnyHeader()
-            .AllowAnyMethod()
+            .WithHeaders("Content-Type", "Authorization", "x-requested-with", "x-signalr-user-agent")
+            .WithMethods("GET", "POST", "DELETE", "OPTIONS")
             .AllowCredentials();
     });
 });
@@ -145,7 +145,7 @@ lifetime.ApplicationStarted.Register(() =>
 // Thanks EBS
 app.MapGet("/", () => "Health is ok!").AllowAnonymous();
 
-var group = app.MapGroup("/board").RequireCors(allowSpecificOriginsPolicy).RequireAuthorization("default_auth_policy");
+var group = app.MapGroup("/board").RequireAuthorization("default_auth_policy");
 Endpoints.ResisterEndpoints(group);
 app.UseCors();
 app.UseAuthorization();

@@ -1,6 +1,7 @@
 import { getEmail, logout } from './authManager.js';
 import { connection, start } from './api.js';
 import { drawGrid } from './grid.js';
+import { backendUrl } from './apiConfig.js';
 
 
 // Open connection to backend
@@ -176,7 +177,7 @@ function sendEvenet(event) {
   const token = sessionStorage.getItem('accessToken');
   
   fetch(`${backendUrl}/board`, {
-    method: 'GET',
+    method: 'POST',
     headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${token}`,
