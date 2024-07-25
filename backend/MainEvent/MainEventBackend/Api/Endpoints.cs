@@ -236,7 +236,7 @@ public static class Endpoints
         // TODO: figure out if we need to do this as partition or on different topic. 
         await producer.ProduceAsync(_messageGroup, new Message<Null, MessageData>
         {
-            Value = new MessageData(data.Column, data.Row, data.HexColour, userSid)
+            Value = new MessageData(data.Row, data.Column, data.HexColour, userSid)
         });
         return TypedResults.Json("success");
     }
