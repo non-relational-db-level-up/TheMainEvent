@@ -158,12 +158,13 @@ connection.on("ReceiveMessage", (message) => {
         clearInterval();
         return;
       }
-  console.log(`${message}`);
-  let data = JSON.parse(message);
+  console.log(message);
+  // let data = JSON.parse(message);
+  let data = message;
   console.log(data);
   let event = {
-    row: data.Row + 2,
-    col: data.Column + 3,
+    row: data.Row,
+    col: data.Column,
     colour: data.HexColour || "#000000"
   };
   console.log(event);
