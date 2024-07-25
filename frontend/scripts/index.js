@@ -150,6 +150,7 @@ function countdown() {
 
 // Round logic
 function startRound(newTopic, secondsRemaining) {
+  endRound();
   clearGrid(rows, cols);
   topicHeader.innerText = 'Draw the following:';
   topic.innerText = newTopic;
