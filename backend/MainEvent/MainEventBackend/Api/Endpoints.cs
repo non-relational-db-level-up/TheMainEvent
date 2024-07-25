@@ -223,8 +223,8 @@ public static class Endpoints
         var userSid = claims.FindFirstValue(ClaimTypes.NameIdentifier)!;
         if (PreventionMap.TryGetValue(userSid, out var valueDate))
         {
-            if ((DateTime.Now - valueDate).TotalSeconds < 30)
-                return TypedResults.Json("You can only send a message every 30 seconds",
+            if ((DateTime.Now - valueDate).TotalSeconds < 5)
+                return TypedResults.Json("You can only send a message every 5 seconds",
                     statusCode: 400);
 
             PreventionMap[userSid] = DateTime.Now;
