@@ -22,13 +22,13 @@ namespace MainEvent.Hubs
         [Authorize]
         public override async Task OnConnectedAsync()
         {
-            if (string.IsNullOrEmpty(_topic.topic))
+            if (!string.IsNullOrEmpty(_topic.topic))
             {
-                //if (_topic.endTime <= DateTime.Now)
-                //{
-                //    await base.OnConnectedAsync();
-                //    return;
-                //}
+                if (_topic.endTime <= DateTime.Now)
+                {
+                    await base.OnConnectedAsync();
+                    return;
+                }
                 var a = new
                 {
                     topic = _topic.topic,
