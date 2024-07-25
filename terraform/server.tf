@@ -126,7 +126,7 @@ resource "aws_elastic_beanstalk_application" "app" {
 resource "aws_elastic_beanstalk_environment" "env" {
   name                = "${var.naming_prefix}-env"
   application         = aws_elastic_beanstalk_application.app.name
-  solution_stack_name = "64bit Amazon Linux 2023 v4.3.4 running Docker"
+  solution_stack_name = "64bit Amazon Linux 2023 v3.1.3 running .NET 8 "
   cname_prefix        = var.naming_prefix
 
   setting {
