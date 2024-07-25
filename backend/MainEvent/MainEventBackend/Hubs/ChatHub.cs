@@ -1,4 +1,5 @@
 ﻿using Confluent.Kafka;
+using ksqlDB.RestApi.Client.KSql.RestApi.Responses.Topics;
 using MainEvent.DTO;
 using MainEvent.helpers;
 using MainEvent.Helpers;
@@ -23,7 +24,18 @@ namespace MainEvent.Hubs
         {
             if (string.IsNullOrEmpty(_topic.topic))
             {
-                await Clients.Caller.SendAsync("StartMessage", _topic);
+                if (_topic.endTime >= DateTime.Now)
+                {
+                    await base.OnConnectedAsync();
+                    return;
+                }
+                var a = new
+                {
+                    topic = _topic.topic,
+                    endTime = (_topic.endTime - DateTime.Now).TotalSeconds,
+                };
+
+                await Clients.Caller.SendAsync("StartMessage", a);
 
 
                 var earliestConfig = new ConsumerConfig
