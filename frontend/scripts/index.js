@@ -153,7 +153,7 @@ function playback(events, clearGridFunction) {
 }
 
 // MOCK FUNCTIONS
-connection.on("ReceiveMessage", (user, message) => {
+connection.on("ReceiveMessage", (message) => {
   if (roundOver) {
         clearInterval();
         return;
