@@ -23,7 +23,6 @@ namespace MainEvent.Api;
 public static class Endpoints
 {
     private static readonly Dictionary<string, DateTime> PreventionMap = new();
-    private static DateTime _endGameTime;
     
     
     public static void ResisterEndpoints(IEndpointRouteBuilder app)
@@ -90,7 +89,7 @@ public static class Endpoints
             var a = new
             {
                 topic = topic.topic,
-                endTime = (topic.endTime - DateTime.Now).TotalSeconds,
+                endTime = Math.Floor((topic.endTime - DateTime.Now).TotalSeconds),
             };
 
             await hubContext.Clients.All.SendAsync("StartMessage", a);

@@ -22,9 +22,9 @@ namespace MainEvent.Hubs
         [Authorize]
         public override async Task OnConnectedAsync()
         {
-            if (string.IsNullOrEmpty(_topic.topic))
+            if (!string.IsNullOrEmpty(_topic.topic))
             {
-                if (_topic.endTime >= DateTime.Now)
+                if (_topic.endTime <= DateTime.Now)
                 {
                     await base.OnConnectedAsync();
                     return;
@@ -32,7 +32,7 @@ namespace MainEvent.Hubs
                 var a = new
                 {
                     topic = _topic.topic,
-                    endTime = (_topic.endTime - DateTime.Now).TotalSeconds,
+                    endTime = Math.Floor((_topic.endTime - DateTime.Now).TotalSeconds),
                 };
 
                 await Clients.Caller.SendAsync("StartMessage", a);
