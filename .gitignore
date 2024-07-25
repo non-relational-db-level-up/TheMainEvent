@@ -1,4 +1,7 @@
 */node_modules
 */.vscode
 .vscode
+.vs
+*/.vs
+.vscode
 /backend/MainEvent/.vs/MainEvent

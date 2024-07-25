@@ -1,5 +1,6 @@
 ﻿using System.Reactive.Linq;
 using System.Security.Claims;
+using System.Text.Json;
 using Confluent.Kafka;
 using Confluent.Kafka.Admin;
 using ksqlDB.RestApi.Client.KSql.Linq;
@@ -28,6 +29,8 @@ public static class Endpoints
         app.MapPost("/", AddBlock);
         app.MapPost("/admin", StartNewSession);
         app.MapPost("/test", Test);
+        app.MapGet("/topics", getTopics);
+        app.MapPost("/events", getTopicEvents);
     }
 
     private static List<MessageData> Test(
@@ -239,5 +242,51 @@ public static class Endpoints
             Value = new MessageData(data.Row, data.Column, data.HexColour, userSid)
         });
         return TypedResults.Json("success");
+    }
+
+
+    private static async Task<JsonHttpResult<List<string>>> getTopics(
+        ILogger<Program> logger,
+        IAdminClient adminClient,
+        ClaimsPrincipal claims
+    )
+    {
+        var metadata = adminClient.GetMetadata(TimeSpan.FromSeconds(10));
+        var topicNames = metadata.Topics.Select(a => a.Topic).ToList();
+        return TypedResults.Json(topicNames);
+        
+    }
+
+    private static async Task<JsonHttpResult<List<MessageData>>> getTopicEvents(
+        ILogger<Program> logger,
+        IAdminClient adminClient,
+        ClaimsPrincipal claims,
+        GetTopicEventsDto data
+    )
+    {
+        
+        var earliestConfig = new ConsumerConfig
+        {
+            BootstrapServers = "54.154.112.105:29092",
+            GroupId = Guid.NewGuid().ToString(),
+            AutoOffsetReset = AutoOffsetReset.Earliest,
+        };
+        var consumer = new ConsumerBuilder<Null, MessageData>(earliestConfig)
+            .SetValueDeserializer(new JsonSerializable<MessageData>())
+            .Build();
+        consumer.Subscribe(data.TopicName);
+        var messages = new List<MessageData>();
+        var flag = false;
+        while (true)
+        {
+            var result = consumer.Consume(5000);
+            if (result == null && flag) break;
+            if (result == null) continue;
+            flag = true;
+            messages.Add(result.Message.Value);
+        }
+
+        return  TypedResults.Json(messages);
+
     }
 }
