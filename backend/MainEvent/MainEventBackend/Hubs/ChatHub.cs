@@ -24,7 +24,7 @@ namespace MainEvent.Hubs
         {
             if (string.IsNullOrEmpty(_topic.topic))
             {
-                if (_topic.endTime >= DateTime.Now)
+                if (_topic.endTime <= DateTime.Now)
                 {
                     await base.OnConnectedAsync();
                     return;
