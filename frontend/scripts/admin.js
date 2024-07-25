@@ -86,7 +86,11 @@ function startSession() {
   const accessToken = sessionStorage.getItem('accessToken');
   const topic = document.getElementById('topic-input').value;
 
+<<<<<<< Updated upstream
   fetch(`${backendUrl}/session`, {
+=======
+  fetch(`${backendUrl}/board/admin`, {
+>>>>>>> Stashed changes
     method: 'POST',
     headers: {
       'Authorization': `Bearer ${accessToken}`,
