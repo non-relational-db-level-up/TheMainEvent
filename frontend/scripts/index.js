@@ -163,9 +163,9 @@ connection.on("ReceiveMessage", (message) => {
   let data = message;
   console.log(data);
   let event = {
-    row: data.Row,
-    col: data.Column,
-    colour: data.HexColour || "#000000"
+    row: data.row,
+    col: data.column,
+    colour: data.hexColour || "#000000"
   };
   console.log(event);
   receiveEvent(event);
