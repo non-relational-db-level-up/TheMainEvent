@@ -2,40 +2,34 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" href="../styles/admin.css" />
-    <link rel="stylesheet" href="../styles/grid.css" />
-    <link rel="stylesheet" href="../styles/round_button.css" />
-    <title>The Main Event | Admin</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/6.0.1/signalr.js"></script>
+    <title>The Main Event</title>
+    <link rel="stylesheet" href="../styles/index.css">
+    <link rel="stylesheet" href="../styles/grid.css">
 </head>
 
 <body>
-    <section class="header">
-        <h1 class="title">The main event</h1>
-        <button id="logout-button" class="round-button">Logout</button>
-    </section>
-
-    <div id="container">
-        <section id="left-container">
+    <section id="index-container">
+        <section id="grid-container">
+            <section id="grid" class="disabled"></section>
+        </section>
+        <section id="sidebar">
+            <h2 id="Admin portal">Admin portal</h2>
             <input type="text" id="topic-input" placeholder="Enter a topic" />
             <button id="start-session-button" class="round-button">Start session</button>
-        </section>
-        <section id="right-container">
+            <h2>Playback topic</h2>
             <select name="topic-selector" id="topic-selector">
                 <option value="" disabled selected>Select a topic</option>
             </select>
-            <section id="index-container">
-                <section id="grid-container">
-                    <section id="grid"></section>
-                </section>
-            </section>
             <button id="playback-button" class="round-button">Playback</button>
+            <button id="logout-button" class="round-button">Logout</button>
         </section>
-    </div>
+    </section>
 
     <script type="module" src="../scripts/validateAuth.js"></script>
-    <script type="module" src="../scripts/admin.js" defer></script>
+    <script type="module" src="../scripts/admin.js"></script>
 </body>
 
 </html>
