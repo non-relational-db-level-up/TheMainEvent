@@ -8,6 +8,7 @@ using ksqlDB.RestApi.Client.KSql.RestApi.Statements;
 using MainEvent;
 using MainEvent.Api;
 using MainEvent.helpers;
+using MainEvent.Helpers;
 using MainEvent.Hubs;
 using MainEvent.Models;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -110,6 +111,10 @@ var consumer = new ConsumerBuilder<Null, MessageData>(consumerConfig)
     .Build();
 // consumer.Subscribe("messages");
 builder.Services.AddSingleton<IConsumer<Null, MessageData>>(_ => consumer);
+
+
+
+builder.Services.AddSingleton<Itopic, Topic>(_ => new Topic());
 
 
 /*

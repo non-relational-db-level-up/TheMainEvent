@@ -2,8 +2,6 @@ import { backendUrl } from './apiConfig.js';
 import { logout } from './authManager.js';
 import { drawGrid } from './grid.js';
 import { parseJwt } from './helpers/parseJwt.js';
-import {backendUrl} from './apiConfig.js';
-
 
 
 window.addEventListener('load', () => {
@@ -31,6 +29,7 @@ drawGrid(rows, cols, 0.5, null);
 populatePastTopics();
 document.getElementById('logout-button').addEventListener('click', logout);
 document.getElementById('playback-button').addEventListener('click', getEvents);
+document.getElementById('start-session-button').addEventListener('click', startSession);
 
 
 function populatePastTopics() {
@@ -86,17 +85,14 @@ function startSession() {
   const accessToken = sessionStorage.getItem('accessToken');
   const topic = document.getElementById('topic-input').value;
 
-<<<<<<< Updated upstream
-  fetch(`${backendUrl}/session`, {
-=======
   fetch(`${backendUrl}/board/admin`, {
->>>>>>> Stashed changes
+
     method: 'POST',
     headers: {
       'Authorization': `Bearer ${accessToken}`,
       'Content-Type': 'application/json'
     },
-    body: JSON.stringify({ topic: topic })
+    body: JSON.stringify({ TopicName: topic})
   })
     .then(response => {
       if (response.ok) {
