@@ -10,14 +10,18 @@ using ksqlDB.RestApi.Client.KSql.RestApi.Statements;
 using MainEvent.DTO;
 using MainEvent.helpers;
 using MainEvent.Models;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 
 namespace MainEvent.Api;
 
 public static class Endpoints
 {
-    static string messageGroup = "";
-
+    private static string _messageGroup = "";
+    private static readonly Dictionary<string, DateTime> PreventionMap = new();
+    private static DateTime _endGameTime;
+    
+    
     public static void ResisterEndpoints(IEndpointRouteBuilder app)
     {
         app.MapGet("/", GetAllBlocksCurrent);
@@ -109,7 +113,7 @@ public static class Endpoints
         [FromBody] CreateSessionDto sessionDto
     )
     {
-        messageGroup = sessionDto.TopicName;
+        _messageGroup = sessionDto.TopicName;
         try
         {
             await adminClient.CreateTopicsAsync([
@@ -209,7 +213,7 @@ public static class Endpoints
         // return TypedResults.Json(claims.Claims.Select(claim => $"V - {claim.Value}\t\tT - {claim.Type}"));
     }
 
-    private static async Task AddBlock(
+    private static async Task<JsonHttpResult<string>> AddBlock(
         ILogger<Program> logger,
         IProducer<Null, MessageData> producer,
         ClaimsPrincipal claims,
@@ -217,10 +221,23 @@ public static class Endpoints
     )
     {
         var userSid = claims.FindFirstValue(ClaimTypes.NameIdentifier)!;
+        if (PreventionMap.TryGetValue(userSid, out var valueDate))
+        {
+            if ((DateTime.Now - valueDate).TotalSeconds < 30)
+                return TypedResults.Json("You can only send a message every 30 seconds",
+                    statusCode: 400);
+
+            PreventionMap[userSid] = DateTime.Now;
+        }
+        else
+            PreventionMap.Add(userSid, DateTime.Now);
+
+
         // TODO: figure out if we need to do this as partition or on different topic. 
-        await producer.ProduceAsync(messageGroup, new Message<Null, MessageData>
+        await producer.ProduceAsync(_messageGroup, new Message<Null, MessageData>
         {
             Value = new MessageData(data.Column, data.Row, data.HexColour, userSid)
         });
+        return TypedResults.Json("success");
     }
 }

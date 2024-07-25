@@ -81,12 +81,13 @@ builder.Services.AddSingleton<IKSqlDBContext, KSqlDBContext>(_ => kSqlDbContext)
 
 kSqlDbContext.CreateOrReplaceTableStatement("messages").With(new EntityCreationMetadata("messages") { Partitions = 1 });
 
-var producerConfig = new ProducerConfig { BootstrapServers = "broker:9092" };
+var bootstrapServers = "54.154.112.105:29092";
+var producerConfig = new ProducerConfig { BootstrapServers = bootstrapServers };
 builder.Services.AddSingleton<IProducer<Null, MessageData>>(_ =>
     new ProducerBuilder<Null, MessageData>(producerConfig).SetValueSerializer(new JsonSerializable<MessageData>())
         .Build());
 
-var adminConfig = new AdminClientConfig { BootstrapServers = "broker:9092" };
+var adminConfig = new AdminClientConfig { BootstrapServers = bootstrapServers };
 var adminClient = new AdminClientBuilder(adminConfig).Build();
 builder.Services.AddSingleton<IAdminClient, IAdminClient>(_ => adminClient);
 /*
@@ -97,7 +98,7 @@ await adminClient.CreateTopicsAsync([
 
 var consumerConfig = new ConsumerConfig
 {
-    BootstrapServers = "broker:9092",
+    BootstrapServers = bootstrapServers,
     GroupId = "Message consumer group",
     AutoOffsetReset = AutoOffsetReset.Latest
 };
