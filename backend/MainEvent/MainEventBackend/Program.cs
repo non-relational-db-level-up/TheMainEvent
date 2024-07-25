@@ -21,15 +21,15 @@ const string defaultAuthPolicy = "default_auth_policy";
 const string adminAuthPolicy = "admin_auth_policy";
 
 var builder = WebApplication.CreateSlimBuilder(args);
-var corsOrigins = builder.Configuration.GetSection("cors").Get<string[]>() ?? [];
+//var corsOrigins = builder.Configuration.GetSection("cors").Get<string[]>() ?? ["http://localhost:5500"];
 builder.Services.AddCors(options =>
 {
     options.AddDefaultPolicy(
     builder =>
     {
-        builder.WithOrigins(corsOrigins)
-            .WithHeaders("Content-Type", "Authorization", "x-requested-with", "x-signalr-user-agent")
-            .WithMethods("GET", "POST", "DELETE", "OPTIONS")
+        builder.WithOrigins(["http://localhost:5500", "https://themainevent.projects.bbdgrad.com"])
+            .AllowAnyHeader()
+            .AllowAnyOrigin()
             .AllowCredentials();
     });
 });
