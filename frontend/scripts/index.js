@@ -8,8 +8,8 @@ import { clearGrid, drawGrid } from './grid.js';
 // Constants
 const rows = 30;
 const cols = 50;
-const cooldownIntervalSeconds = 30;
-const countdownIntervalSeconds = 60;
+const cooldownIntervalSeconds = 3;
+const countdownIntervalSeconds = 15;
 const playbackDuration = 10;
 
 // Elements
@@ -125,6 +125,7 @@ function endRound() {
   grid.classList.add('disabled');
   playbackButton.disabled = false;
   playbackButton.classList.remove('disabled');
+  cooldownTimerContainer.style.display = 'none';
   colourPicker.disabled = true;
   colourPicker.classList.add('disabled');
 }
@@ -150,7 +151,6 @@ function startReceiving() {
   setInterval(() => {
     if (roundOver) {
       clearInterval();
-      setTimeout(() => startRound('dog', countdownIntervalSeconds), 10000);
       return;
     }
     const row = getRandomInt(rows) + 1;
