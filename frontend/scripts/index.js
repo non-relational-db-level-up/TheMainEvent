@@ -20,6 +20,11 @@ let cooldownTimer = document.getElementById('cooldown-timer');
 let cooldownTimerContainer = document.getElementById('cooldown-timer-container');
 let grid = document.getElementById('grid');
 let playbackButton = document.getElementById('playback-button');
+let messageButton = document.getElementById('submit-button');
+
+messageButton.addEventListener('click', async () => {
+  connection.invoke("SendMessage", userEmail, "hello");
+})
 
 // Variables
 const userEmail = await getEmail();
@@ -138,17 +143,34 @@ function playback() {
 }
 
 // MOCK FUNCTIONS
-setInterval(() => {
+// setInterval(() => {
+//   if (roundOver) {
+//     clearInterval();
+//     return;
+//   }
+//   const row = getRandomInt(rows) + 1;
+//   const col = getRandomInt(cols) + 1;
+//   const colour = getRandomColor();
+//   let event = { row, col, colour };
+//   receiveEvent(event);
+// }, 100);
+
+connection.on("ReceiveMessage", (user, message) => {
   if (roundOver) {
-    clearInterval();
-    return;
-  }
-  const row = getRandomInt(rows) + 1;
-  const col = getRandomInt(cols) + 1;
-  const colour = getRandomColor();
-  let event = { row, col, colour };
+        clearInterval();
+        return;
+      }
+  console.log(`${user}: ${message}`);
+  let data = JSON.parse(message);
+  console.log(data);
+  let event = {
+    row: data.Row + 2,
+    col: data.Column + 3,
+    colour: data.HexColour
+  };
+  console.log(event);
   receiveEvent(event);
-}, 100);
+});
 
 function sendEvenet(event) {
   receiveEvent(event);
