@@ -1,3 +1,4 @@
+import { backendUrl } from './apiConfig.js';
 import { logout } from './authManager.js';
 import { drawGrid } from './grid.js';
 import { parseJwt } from './helpers/parseJwt.js';
@@ -29,7 +30,7 @@ document.getElementById('logout-button').addEventListener('click', logout);
 function populatePastTopics() {
   const accessToken = sessionStorage.getItem('accessToken');
 
-  fetch('https://example.com/topics', {
+  fetch(`${backendUrl}/topics`, {
     method: 'GET',
     headers: {
       'Authorization': `Bearer ${accessToken}`
@@ -56,7 +57,7 @@ function startSession() {
   const accessToken = sessionStorage.getItem('accessToken');
   const topic = document.getElementById('topic-input').value;
 
-  fetch('https://example.com/session', {
+  fetch(`${backendUrl}/session`, {
     method: 'POST',
     headers: {
       'Authorization': `Bearer ${accessToken}`,

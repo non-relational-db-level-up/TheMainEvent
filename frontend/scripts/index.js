@@ -1,6 +1,7 @@
 import { getEmail, logout } from './authManager.js';
 import { connection, start } from './api.js';
 import { clearGrid, drawGrid } from './grid.js';
+import { backendUrl } from './apiConfig.js';
 
 // Open connection to backend
 // start();
@@ -21,6 +22,11 @@ let playbackButton = document.getElementById('playback-button');
 let grid = document.getElementById('grid');
 let topic = document.getElementById('topic');
 let topicHeader = document.getElementById('topic-header');
+let messageButton = document.getElementById('submit-button');
+
+messageButton.addEventListener('click', async () => {
+  connection.invoke("SendMessage", userEmail, "hello");
+})
 
 // Variables
 const userEmail = await getEmail();
@@ -147,23 +153,49 @@ function playback(events, clearGridFunction) {
 }
 
 // MOCK FUNCTIONS
-function startReceiving() {
-  setInterval(() => {
-    if (roundOver) {
-      clearInterval();
-      return;
-    }
-    const row = getRandomInt(rows) + 1;
-    const col = getRandomInt(cols) + 1;
-    const colour = getRandomColor();
-    let event = { row, col, colour };
-    receiveEvent(event);
-  }, 100);
-}
+// setInterval(() => {
+//   if (roundOver) {
+//     clearInterval();
+//     return;
+//   }
+//   const row = getRandomInt(rows) + 1;
+//   const col = getRandomInt(cols) + 1;
+//   const colour = getRandomColor();
+//   let event = { row, col, colour };
+//   receiveEvent(event);
+// }, 100);
 
-function sendEvent(event) {
-  // Hit endpoint to send event
+connection.on("ReceiveMessage", (user, message) => {
+  if (roundOver) {
+        clearInterval();
+        return;
+      }
+  console.log(`${user}: ${message}`);
+  let data = JSON.parse(message);
+  console.log(data);
+  let event = {
+    row: data.Row + 2,
+    col: data.Column + 3,
+    colour: data.HexColour
+  };
+  console.log(event);
   receiveEvent(event);
+});
+
+function sendEvenet(event) {
+  const token = sessionStorage.getItem('accessToken');
+  
+  fetch(`${backendUrl}/board`, {
+    method: 'POST',
+    headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+    body: JSON.stringify(event)
+    })
+    .then(response => response.json())
+    .then(data => console.log(data))
+    .catch(error => console.error('Error:', error));
 }
 
 function receiveEvent(event) {
