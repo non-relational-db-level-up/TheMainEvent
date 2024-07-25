@@ -151,6 +151,7 @@ function countdown() {
 
 // Round logic
 function startRound(newTopic, secondsRemaining) {
+  clearGrid(rows, cols);
   topicHeader.innerText = 'Draw the following:';
   topic.innerText = newTopic;
   countdownSecondsRemaining = secondsRemaining;
