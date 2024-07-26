@@ -19,8 +19,8 @@ window.addEventListener('load', () => {
   }
 });
 
-const rows = 30;
-const cols = 50;
+const rows = 90;
+const cols = 150;
 const playbackDuration = 10;
 
 drawGrid(rows, cols, 0.7, null);

@@ -47,7 +47,7 @@ public static class Endpoints
     )
     {
         topic.topic = sessionDto.TopicName;
-        topic.endTime = DateTime.Now.AddMinutes(10);
+        topic.endTime = DateTime.Now.AddDays(2);
 
         try
         {

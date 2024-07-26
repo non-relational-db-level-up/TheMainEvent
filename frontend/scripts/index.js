@@ -8,8 +8,8 @@ import { parseSecondsToTimeLeft } from './helpers/time.js';
 start();
 
 // Constants
-const rows = 30;
-const cols = 50;
+const rows = 90;
+const cols = 150;
 const cooldownIntervalSeconds = 5;
 const playbackDuration = 10;
 
