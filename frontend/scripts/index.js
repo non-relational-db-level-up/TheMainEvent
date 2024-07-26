@@ -56,6 +56,7 @@ connection.on("ReceiveMessage", (message) => {
     return;
   }
   let data = message;
+  console.log(data);
   let event = {
     row: data.row,
     col: data.column,
