@@ -52,7 +52,7 @@ document.documentElement.style.setProperty('--selected-color', colourPicker.valu
 
 // Socket events
 connection.on("ReceiveMessage", (message) => {
-  console.log('Round over: ', message);
+  console.log('Round over: ', roundOver);
   if (roundOver) {
     return;
   }
