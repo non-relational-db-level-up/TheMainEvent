@@ -63,16 +63,5 @@ namespace MainEvent.Hubs
             await base.OnConnectedAsync();
 
         }
-
-        //[Authorize]
-        //public async Task SendMessage(string user, string message)
-        //{
-        //    var data = new MessageDataDto(1, 1, "#f5aa42");
-
-        //    string jsonString = JsonSerializer.Serialize(data);
-
-
-        //    await Clients.All.SendAsync("ReceiveMessage", user, jsonString);
-        //}
     }
 }
