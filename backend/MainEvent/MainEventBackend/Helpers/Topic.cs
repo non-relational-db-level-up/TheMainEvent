@@ -1,7 +1,6 @@
-﻿using System.Drawing.Printing;
-
-namespace MainEvent.Helpers
+﻿namespace MainEvent.Helpers
 {
+    // Yes this should be better
     public interface Itopic
     {
         string topic { get; set; }

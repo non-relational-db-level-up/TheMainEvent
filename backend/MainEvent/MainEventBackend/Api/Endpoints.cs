@@ -23,47 +23,16 @@ namespace MainEvent.Api;
 public static class Endpoints
 {
     private static readonly Dictionary<string, DateTime> PreventionMap = new();
-    
-    
+
+
     public static void ResisterEndpoints(IEndpointRouteBuilder app)
     {
-        app.MapGet("/", GetAllBlocksCurrent);
         app.MapPost("/", AddBlock);
         app.MapPost("/admin", StartNewSession)
             .RequireAuthorization("admin_auth_policy");
-        app.MapPost("/test", Test);
-        app.MapGet("/topics", getTopics);
-        app.MapPost("/events", getTopicEvents);
-    }
-
-    private static List<MessageData> Test(
-        ILogger<Program> logger,
-        IKSqlDBContext context
-    )
-    {
-        var earliestConfig = new ConsumerConfig
-        {
-            BootstrapServers = "localhost:29092",
-            GroupId = Guid.NewGuid().ToString(),
-            AutoOffsetReset = AutoOffsetReset.Earliest
-        };
-        var consumer = new ConsumerBuilder<Null, MessageData>(earliestConfig)
-            .SetValueDeserializer(new JsonSerializable<MessageData>())
-            .Build();
-        consumer.Subscribe("cool");
-
-        var messages = new List<MessageData>();
-        var flag = false;
-        while (true)
-        {
-            var result = consumer.Consume(5000);
-            if (result == null && flag) break;
-            if (result == null) continue;
-            flag = true;
-            messages.Add(result.Message.Value);
-        }
-
-        return messages;
+        app.MapGet("/topics", GetTopics).RequireAuthorization("admin_auth_policy");
+        app.MapPost("/events", GetTopicEvents).RequireAuthorization("admin_auth_policy");
+        // app.MapGet("/", GetAllBlocksCurrent);
     }
 
     private static async Task StartNewSession(
@@ -86,13 +55,13 @@ public static class Endpoints
                 new TopicSpecification { Name = sessionDto.TopicName, NumPartitions = 1, ReplicationFactor = 1 }
             ]);
 
-            var a = new
+            var sendHubTopic = new
             {
                 topic = topic.topic,
                 endTime = Math.Floor((topic.endTime - DateTime.Now).TotalSeconds),
             };
 
-            await hubContext.Clients.All.SendAsync("StartMessage", a);
+            await hubContext.Clients.All.SendAsync("StartMessage", sendHubTopic);
         }
         catch (Exception e)
         {
@@ -108,7 +77,7 @@ public static class Endpoints
         ClaimsPrincipal claims
     )
     {
-        // TODO: use sql like thingy to make call to the latest board state
+        // Yay you cant make table with context else this would be great.
         return context.CreatePullQuery<MessageData>().GetManyAsync();
     }
 
@@ -132,8 +101,6 @@ public static class Endpoints
         else
             PreventionMap.Add(userSid, DateTime.Now);
 
-
-        // TODO: figure out if we need to do this as partition or on different topic. 
         await producer.ProduceAsync(topic.topic, new Message<Null, MessageData>
         {
             Value = new MessageData(data.Row, data.Column, data.HexColour, userSid)
@@ -142,7 +109,7 @@ public static class Endpoints
     }
 
 
-    private static async Task<JsonHttpResult<List<string>>> getTopics(
+    private static JsonHttpResult<List<string>> GetTopics(
         ILogger<Program> logger,
         IAdminClient adminClient,
         ClaimsPrincipal claims
@@ -151,20 +118,18 @@ public static class Endpoints
         var metadata = adminClient.GetMetadata(TimeSpan.FromSeconds(10));
         var topicNames = metadata.Topics.Select(a => a.Topic).ToList();
         return TypedResults.Json(topicNames);
-        
     }
 
-    private static async Task<JsonHttpResult<List<MessageData>>> getTopicEvents(
+    private static JsonHttpResult<List<MessageData>> GetTopicEvents(
         ILogger<Program> logger,
         IAdminClient adminClient,
         ClaimsPrincipal claims,
         GetTopicEventsDto data
     )
     {
-        
         var earliestConfig = new ConsumerConfig
         {
-            BootstrapServers = "54.154.112.105:29092",
+            BootstrapServers = ConstStuff.BootstrapServers,
             GroupId = Guid.NewGuid().ToString(),
             AutoOffsetReset = AutoOffsetReset.Earliest,
         };
@@ -183,7 +148,6 @@ public static class Endpoints
             messages.Add(result.Message.Value);
         }
 
-        return  TypedResults.Json(messages);
-
+        return TypedResults.Json(messages);
     }
 }

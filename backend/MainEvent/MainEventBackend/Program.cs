@@ -17,22 +17,20 @@ using static Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults;
 using AutoOffsetReset = Confluent.Kafka.AutoOffsetReset;
 using EndpointType = ksqlDB.RestApi.Client.KSql.Query.Options.EndpointType;
 
-const string allowSpecificOriginsPolicy = "allow_specific_origins_policy";
 const string defaultAuthPolicy = "default_auth_policy";
 const string adminAuthPolicy = "admin_auth_policy";
 
 var builder = WebApplication.CreateSlimBuilder(args);
-//var corsOrigins = builder.Configuration.GetSection("cors").Get<string[]>() ?? ["http://localhost:5500"];
 builder.Services.AddCors(options =>
 {
     options.AddDefaultPolicy(
-    builder =>
-    {
-        builder.WithOrigins(["http://localhost:5500", "https://themainevent.projects.bbdgrad.com"])
-            .AllowAnyHeader()
-            .AllowAnyMethod()
-            .AllowCredentials();
-    });
+        builder =>
+        {
+            builder.WithOrigins(["http://localhost:5500", "https://themainevent.projects.bbdgrad.com"])
+                .AllowAnyHeader()
+                .AllowAnyMethod()
+                .AllowCredentials();
+        });
 });
 
 builder.Services.AddAuthorization();
@@ -62,7 +60,6 @@ builder.Services.AddAuthentication(AuthenticationScheme)
     );
 
 
-// builder.Services.AddAuthentication(AuthenticationScheme).AddJwtBearer();
 builder.Services.ConfigureOptions<JwtBearerConfigureOptions>();
 builder.Services.AddAuthorizationBuilder().AddPolicy(defaultAuthPolicy,
     policy => policy.AddAuthenticationSchemes(AuthenticationScheme).RequireClaim(ClaimTypes.NameIdentifier));
@@ -84,24 +81,20 @@ builder.Services.AddSingleton<IKSqlDBContext, KSqlDBContext>(_ => kSqlDbContext)
 
 kSqlDbContext.CreateOrReplaceTableStatement("messages").With(new EntityCreationMetadata("messages") { Partitions = 1 });
 
-var bootstrapServers = "54.154.112.105:29092";
-var producerConfig = new ProducerConfig { BootstrapServers = bootstrapServers };
+ConstStuff.BootstrapServers = builder.Configuration.GetValue<string>("kafka")!;
+
+var producerConfig = new ProducerConfig { BootstrapServers = ConstStuff.BootstrapServers };
 builder.Services.AddSingleton<IProducer<Null, MessageData>>(_ =>
     new ProducerBuilder<Null, MessageData>(producerConfig).SetValueSerializer(new JsonSerializable<MessageData>())
         .Build());
 
-var adminConfig = new AdminClientConfig { BootstrapServers = bootstrapServers };
+var adminConfig = new AdminClientConfig { BootstrapServers = ConstStuff.BootstrapServers };
 var adminClient = new AdminClientBuilder(adminConfig).Build();
 builder.Services.AddSingleton<IAdminClient, IAdminClient>(_ => adminClient);
-/*
-await adminClient.CreateTopicsAsync([
-    new TopicSpecification { Name = "messages", NumPartitions = 1, ReplicationFactor = 1 }
-]);
-*/
 
 var consumerConfig = new ConsumerConfig
 {
-    BootstrapServers = bootstrapServers,
+    BootstrapServers = ConstStuff.BootstrapServers,
     GroupId = "Message consumer group",
     AutoOffsetReset = AutoOffsetReset.Latest
 };
@@ -109,30 +102,8 @@ var consumerConfig = new ConsumerConfig
 var consumer = new ConsumerBuilder<Null, MessageData>(consumerConfig)
     .SetValueDeserializer(new JsonSerializable<MessageData>())
     .Build();
-// consumer.Subscribe("messages");
 builder.Services.AddSingleton<IConsumer<Null, MessageData>>(_ => consumer);
-
-
-
 builder.Services.AddSingleton<Itopic, Topic>(_ => new Topic());
-
-
-/*
-var earliestConfig = new ConsumerConfig
-{
-    BootstrapServers = "broker:9092",
-    GroupId = "Test",
-    AutoOffsetReset = AutoOffsetReset.Earliest
-};
-
-var earliest = new ConsumerBuilder<Null, MessageData>(earliestConfig)
-    .SetValueDeserializer(new JsonSerializable<MessageData>())
-    .Build();
-earliest.Subscribe("messages");
-
-builder.Services.AddSingleton<IConsumer<Null, MessageData>>(_ => earliest);
-*/
-
 
 builder.Services.AddSingleton<IKafkaConsumerService, KafkaConsumerService>();
 var app = builder.Build();
@@ -157,7 +128,6 @@ app.UseAuthorization();
 app.UseAuthentication();
 
 app.MapHub<ChatHub>("/chatHub");
-
 
 app.Run();
 

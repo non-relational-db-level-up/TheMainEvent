@@ -11,43 +11,38 @@ using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace MainEvent.Hubs
 {
-    public class ChatHub : Hub
+    public class ChatHub(Itopic topic) : Hub
     {
-        Itopic _topic;
-        public ChatHub(Itopic topic)
-        {
-            _topic = topic;
-        }
-
         [Authorize]
         public override async Task OnConnectedAsync()
         {
-            if (!string.IsNullOrEmpty(_topic.topic))
+            if (!string.IsNullOrEmpty(topic.topic))
             {
-                if (_topic.endTime <= DateTime.Now)
+                if (topic.endTime <= DateTime.Now)
                 {
                     await base.OnConnectedAsync();
                     return;
                 }
-                var a = new
+
+                var topicSendMessage = new
                 {
-                    topic = _topic.topic,
-                    endTime = Math.Floor((_topic.endTime - DateTime.Now).TotalSeconds),
+                    topic = topic.topic,
+                    endTime = Math.Floor((topic.endTime - DateTime.Now).TotalSeconds),
                 };
 
-                await Clients.Caller.SendAsync("StartMessage", a);
+                await Clients.Caller.SendAsync("StartMessage", topicSendMessage);
 
 
                 var earliestConfig = new ConsumerConfig
                 {
-                    BootstrapServers = "54.154.112.105:29092",
+                    BootstrapServers = ConstStuff.BootstrapServers,
                     GroupId = Guid.NewGuid().ToString(),
                     AutoOffsetReset = AutoOffsetReset.Earliest,
                 };
                 var consumer = new ConsumerBuilder<Null, MessageData>(earliestConfig)
                     .SetValueDeserializer(new JsonSerializable<MessageData>())
                     .Build();
-                consumer.Subscribe(_topic.topic);
+                consumer.Subscribe(topic.topic);
                 var flag = false;
                 while (true)
                 {
@@ -57,11 +52,9 @@ namespace MainEvent.Hubs
                     flag = true;
                     await Clients.Caller.SendAsync("ReceiveMessage", result.Message.Value);
                 }
-
             }
 
             await base.OnConnectedAsync();
-
         }
     }
 }
